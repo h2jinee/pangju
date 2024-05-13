@@ -69,32 +69,37 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: const Color(0xFFC6C6C6).withOpacity(0.1),
                       spreadRadius: 1,
                       blurRadius: 10,
-                      offset: const Offset(0, 10), // 상단 그림자
+                      offset: const Offset(0), // 상단 그림자
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
+                child: const Padding(
+                  padding: EdgeInsets.only(
                     top: 30,
                     left: 10,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      for (int i = 1; i <= 4; i++)
-                        CategoryButton(
-                          imagePath: 'assets/images/main_category$i.png',
-                          label: i == 1
-                              ? '전체'
-                              : i == 2
-                                  ? '온라인'
-                                  : i == 3
-                                      ? '오프라인'
-                                      : '실종·분실',
-                        ),
+                      CategoryButton(
+                        imagePath: 'assets/images/icons/all.png',
+                        label: '전체',
+                      ),
+                      CategoryButton(
+                        imagePath: 'assets/images/icons/online.png',
+                        label: '온라인',
+                      ),
+                      CategoryButton(
+                        imagePath: 'assets/images/icons/offline.png',
+                        label: '오프라인',
+                      ),
+                      CategoryButton(
+                        imagePath: 'assets/images/icons/missing.png',
+                        label: '실종·분실',
+                      ),
                     ],
                   ),
                 ),
@@ -116,16 +121,27 @@ class CategoryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        // 버튼 클릭 이벤트
-      },
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0), // changes position of shadow
+          ),
+        ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Image.asset(imagePath, width: 100), // 이미지 사이즈 조정 가능
+          Image.asset(imagePath,
+              width: 72, height: 72), // Use full size of container
+          const SizedBox(height: 4), // Small space between icon and text
           Text(label),
         ],
       ),
