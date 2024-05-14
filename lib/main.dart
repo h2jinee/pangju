@@ -13,7 +13,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        fontFamily: 'PretendardBold',
+        fontFamily: 'Pretendard',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(
+            height: 1.2,
+            letterSpacing: -0.2,
+          ),
+        ),
       ),
       themeMode: ThemeMode.system,
       home: const HomePage(),
