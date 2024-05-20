@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadMoreItems();
+    _fetchItems();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
@@ -31,53 +34,62 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _loadMoreItems() {
+  Future<void> _fetchItems() async {
     setState(() {
       _isLoading = true;
     });
 
-    // Simulate network request
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      // 사용자 이름과 비밀번호를 Base64로 인코딩
+      String username = 'user'; // 기본 사용자 이름
+      String password =
+          '19db4467-d805-46be-bc1a-5ab6090bdc92'; // Postman에서 사용한 비밀번호
+      String basicAuth =
+          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+      final response = await http.get(
+        Uri.parse(
+            'http://10.0.2.2:8080/api/items?page=$_currentPage'), // 페이지 번호 추가
+        headers: {
+          'Authorization': basicAuth, // 인증 헤더 추가
+        },
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        List<Map<String, dynamic>> newItems =
+            List<Map<String, dynamic>>.from(json.decode(response.body));
+        setState(() {
+          _items.addAll(newItems.where((newItem) => !_items.any(
+              (existingItem) =>
+                  existingItem['content'] ==
+                  newItem['content']))); // 중복 체크 후 추가
+          _isLoading = false;
+        });
+      } else {
+        print('Failed to load items with status: ${response.statusCode}');
+        throw Exception('Failed to load items');
+      }
+    } catch (e) {
+      print('Error: $e');
       setState(() {
         _isLoading = false;
-        _currentPage++;
-        List<Map<String, dynamic>> items1 =
-            List.generate(_itemsPerPage ~/ 2, (index) {
-          int itemIndex = (_currentPage - 1) * _itemsPerPage + index;
-          if (itemIndex >= 60) return null; // 60개까지만 생성
-          return {
-            'category': '온라인',
-            'status': '찾는 중',
-            'title': '콘서트 같이 갔었던 분 찾아요.',
-            'content':
-                '여기에는 글의 내용이 들어갑니다. 더 많은 텍스트와 설명을 추가할 수 있습니다. 내용은 상세하게 기술됩니다.',
-            'heartCount': 38,
-            'chatCount': 11,
-            'backgroundColor': const Color(0xFFFEE4EB),
-            'textColor': const Color(0xFFF14074),
-            'image': 'assets/images/sample.jpg', // 예시 이미지 경로
-          };
-        }).whereType<Map<String, dynamic>>().toList();
-        List<Map<String, dynamic>> items2 =
-            List.generate(_itemsPerPage ~/ 2, (index) {
-          int itemIndex = (_currentPage - 1) * _itemsPerPage + index;
-          if (itemIndex >= 20) return null; // 20개까지만 생성
-          return {
-            'category': '실종·분실',
-            'status': '찾기 완료',
-            'title': '망원동에서 잃어버린 고양이 찾습니다!',
-            'content':
-                '여기에는 글의 내용이 들어갑니다. 더 많은 텍스트와 설명을 추가할 수 있습니다. 내용은 상세하게 기술됩니다.',
-            'heartCount': 104,
-            'chatCount': 3,
-            'backgroundColor': const Color(0xFFFBE8E5),
-            'textColor': const Color(0xFFEF470A),
-            'image': null, // 이미지가 없는 경우
-          };
-        }).whereType<Map<String, dynamic>>().toList();
-        _items.addAll(items1 + items2);
       });
+    }
+  }
+
+  void _loadMoreItems() {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
     });
+
+    // 페이지 번호 증가 후 아이템 가져오기
+    _currentPage++;
+    _fetchItems();
   }
 
   @override
@@ -107,6 +119,32 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
     // 여기에 각 탭에 대한 동작을 추가할 수 있습니다.
+  }
+
+  Color _getMainCategoryBackgroundColor(String mainCategory) {
+    switch (mainCategory) {
+      case '오프라인':
+        return const Color(0xFFE6F6EB);
+      case '온라인':
+        return const Color(0xFFFEE4EB);
+      case '분실·신고':
+        return const Color(0xFFFBE8E5);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getMainCategoryTextColor(String mainCategory) {
+    switch (mainCategory) {
+      case '오프라인':
+        return const Color(0xFF17944B);
+      case '온라인':
+        return const Color(0xFFF14074);
+      case '분실·신고':
+        return const Color(0xFFEF470A);
+      default:
+        return Colors.black;
+    }
   }
 
   @override
@@ -431,6 +469,7 @@ class _HomePageState extends State<HomePage> {
                   shrinkWrap: true,
                   itemCount: _items.length,
                   itemBuilder: (context, index) {
+                    final item = _items[index];
                     return Column(
                       children: [
                         Padding(
@@ -453,15 +492,17 @@ class _HomePageState extends State<HomePage> {
                                             vertical: 3,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: _items[index]
-                                                ['backgroundColor'],
+                                            color:
+                                                _getMainCategoryBackgroundColor(
+                                                    item['mainCategory']),
                                             borderRadius:
                                                 BorderRadius.circular(2),
                                           ),
                                           child: Text(
-                                            _items[index]['category'],
+                                            item['mainCategory'],
                                             style: TextStyle(
-                                              color: _items[index]['textColor'],
+                                              color: _getMainCategoryTextColor(
+                                                  item['mainCategory']),
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -479,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                                                 BorderRadius.circular(2),
                                           ),
                                           child: Text(
-                                            _items[index]['status'],
+                                            item['status'],
                                             style: const TextStyle(
                                               color: Color(0xFF484848),
                                               fontSize: 14,
@@ -489,21 +530,21 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ],
                                     ),
-                                    const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
                                       child: Text(
-                                        '콘서트 같이 갔었던 분 찾아요.',
-                                        style: TextStyle(
+                                        item['content'],
+                                        style: const TextStyle(
                                           color: Color(0xFF262626),
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                         ),
                                       ),
                                     ),
-                                    const Text(
-                                      '여기에는 글의 내용이 들어갑니다. 더 많은 텍스트와 설명을 추가할 수 있습니다. 내용은 상세하게 기술됩니다.',
-                                      style: TextStyle(
+                                    Text(
+                                      item['description'],
+                                      style: const TextStyle(
                                         color: Color(0xFF7B7B7B),
                                         fontSize: 16,
                                       ),
@@ -522,11 +563,12 @@ class _HomePageState extends State<HomePage> {
                                             BlendMode.srcIn,
                                           ),
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(left: 3),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 3),
                                           child: Text(
-                                            '38',
-                                            style: TextStyle(
+                                            '${item['heartCount']}',
+                                            style: const TextStyle(
                                               color: Color(0xFFA5A5A5),
                                             ),
                                           ), // 실제 카운트 값으로 대체
@@ -543,11 +585,12 @@ class _HomePageState extends State<HomePage> {
                                             BlendMode.srcIn,
                                           ),
                                         ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(left: 3),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 3),
                                           child: Text(
-                                            '11',
-                                            style: TextStyle(
+                                            '${item['chatCount']}',
+                                            style: const TextStyle(
                                               color: Color(0xFFA5A5A5),
                                             ),
                                           ), // 실제 카운트 값으로 대체
@@ -557,7 +600,7 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                              if (_items[index]['image'] != null)
+                              if (item['image'] != null)
                                 Container(
                                   width: 80,
                                   height: 80,
@@ -565,7 +608,7 @@ class _HomePageState extends State<HomePage> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     image: DecorationImage(
-                                      image: AssetImage(_items[index]['image']),
+                                      image: AssetImage(item['image']),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
