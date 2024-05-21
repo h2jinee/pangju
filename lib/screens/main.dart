@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         textTheme: const TextTheme(
           bodyLarge: TextStyle(
-            height: 1.2,
+            height: 1.3,
             letterSpacing: -0.2,
           ),
         ),

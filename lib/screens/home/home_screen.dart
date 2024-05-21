@@ -17,9 +17,11 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> _items = [];
   bool _isLoading = false;
   int _currentPage = 1;
-  final int _itemsPerPage = 10;
+  final int _itemsPerPage = 15;
   int _selectedCategoryIndex = 0;
   int _selectedIndex = 0; // 하단 네비게이션 바 선택 인덱스
+  bool _showNotificationBox = true; // 추가된 변수
+  bool _hasMoreItems = true; // 추가된 변수
 
   @override
   void initState() {
@@ -28,13 +30,16 @@ class _HomePageState extends State<HomePage> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
-          !_isLoading) {
+          !_isLoading &&
+          _hasMoreItems) {
         _loadMoreItems();
       }
     });
   }
 
   Future<void> _fetchItems() async {
+    if (!_hasMoreItems) return;
+
     setState(() {
       _isLoading = true;
     });
@@ -43,13 +48,13 @@ class _HomePageState extends State<HomePage> {
       // 사용자 이름과 비밀번호를 Base64로 인코딩
       String username = 'user'; // 기본 사용자 이름
       String password =
-          '19db4467-d805-46be-bc1a-5ab6090bdc92'; // Postman에서 사용한 비밀번호
+          '7a5f7c5c-306a-49ef-8265-71de2327efaf'; // Postman에서 사용한 비밀번호
       String basicAuth =
           'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
       final response = await http.get(
         Uri.parse(
-            'http://10.0.2.2:8080/api/items?page=$_currentPage'), // 페이지 번호 추가
+            'http://10.0.2.2:8081/api/items?page=$_currentPage&size=$_itemsPerPage'), // 페이지 번호 및 사이즈 추가
         headers: {
           'Authorization': basicAuth, // 인증 헤더 추가
         },
@@ -61,12 +66,17 @@ class _HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         List<Map<String, dynamic>> newItems =
             List<Map<String, dynamic>>.from(json.decode(response.body));
+        if (newItems.isEmpty) {
+          setState(() {
+            _hasMoreItems = false; // 더 이상 아이템이 없음을 표시
+            _isLoading = false;
+          });
+          return; // 더 이상 데이터를 가져오지 않도록 반환
+        }
         setState(() {
-          _items.addAll(newItems.where((newItem) => !_items.any(
-              (existingItem) =>
-                  existingItem['content'] ==
-                  newItem['content']))); // 중복 체크 후 추가
+          _items.addAll(newItems); // 중복 체크를 제거하고 데이터 추가
           _isLoading = false;
+          _currentPage++; // 페이지 번호 증가
         });
       } else {
         print('Failed to load items with status: ${response.statusCode}');
@@ -81,14 +91,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadMoreItems() {
-    if (_isLoading) return;
+    if (_isLoading || !_hasMoreItems) return; // 수정된 부분
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    // 페이지 번호 증가 후 아이템 가져오기
-    _currentPage++;
     _fetchItems();
   }
 
@@ -119,6 +123,12 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
     // 여기에 각 탭에 대한 동작을 추가할 수 있습니다.
+  }
+
+  void _hideNotificationBox() {
+    setState(() {
+      _showNotificationBox = false;
+    });
   }
 
   Color _getMainCategoryBackgroundColor(String mainCategory) {
@@ -157,49 +167,67 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               // 로고 및 소개 텍스트
-              Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.only(right: 0, top: 30),
+                child: Stack(
+                  children: [
+                    Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 0, left: 20),
-                          child: Image.asset(
-                            'assets/images/main_logo.png',
-                            width: 52,
-                            fit: BoxFit.contain,
-                          ), // 로고 이미지
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 0, left: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  'assets/images/main_logo.png',
+                                  width: 52,
+                                  fit: BoxFit.contain,
+                                ), // 로고 이미지
+                                const SizedBox(height: 40),
+                                const Text(
+                                  '팡쥬에서 보고 싶었던\n사람을 찾아보세요.',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                    color: Color(0xFF3090CC),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 40),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Text(
-                            '팡쥬에서 보고 싶었던\n사람을 찾아보세요.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
-                              color: Color(0xFF3090CC),
+                        Expanded(
+                          flex: 1,
+                          child: Transform.translate(
+                            offset: const Offset(-20, 40),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Image.asset(
+                                'assets/images/main_character.png',
+                                width: 140, // 주요 캐릭터 이미지
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Transform.translate(
-                      offset: const Offset(0, 50),
-                      child: Image.asset(
-                        'assets/images/main_character.png',
-                        width: 140, // 주요 캐릭터 이미지
+                    Positioned(
+                      top: 0,
+                      right: 20,
+                      child: SvgPicture.asset(
+                        'assets/images/icons/bell.svg',
+                        width: 24,
+                        height: 24,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              // 카테고리 버튼
+              const SizedBox(
+                height: 20,
+              ), // 간격 조정
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -218,41 +246,115 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 35, bottom: 25),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: Column(
                     children: [
-                      CategoryButton(
-                        imagePath: 'assets/images/icons/all.png',
-                        label: '전체',
-                        onTap: () {
-                          print('전체 카테고리가 선택되었습니다.');
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          CategoryButton(
+                            imagePath: 'assets/images/icons/all.png',
+                            label: '전체',
+                            onTap: () {
+                              print('전체 카테고리가 선택되었습니다.');
+                            },
+                          ),
+                          CategoryButton(
+                            imagePath: 'assets/images/icons/online.png',
+                            label: '온라인',
+                            onTap: () {
+                              print('온라인 카테고리가 선택되었습니다.');
+                            },
+                          ),
+                          CategoryButton(
+                            imagePath: 'assets/images/icons/offline.png',
+                            label: '오프라인',
+                            onTap: () {
+                              print('오프라인 카테고리가 선택되었습니다.');
+                            },
+                          ),
+                          CategoryButton(
+                            imagePath: 'assets/images/icons/missing.png',
+                            label: '실종·분실',
+                            onTap: () {
+                              print('실종·분실 카테고리가 선택되었습니다.');
+                            },
+                          ),
+                        ],
                       ),
-                      CategoryButton(
-                        imagePath: 'assets/images/icons/online.png',
-                        label: '온라인',
-                        onTap: () {
-                          print('온라인 카테고리가 선택되었습니다.');
-                        },
-                      ),
-                      CategoryButton(
-                        imagePath: 'assets/images/icons/offline.png',
-                        label: '오프라인',
-                        onTap: () {
-                          print('오프라인 카테고리가 선택되었습니다.');
-                        },
-                      ),
-                      CategoryButton(
-                        imagePath: 'assets/images/icons/missing.png',
-                        label: '실종·분실',
-                        onTap: () {
-                          print('실종·분실 카테고리가 선택되었습니다.');
-                        },
-                      ),
+                      // 새로운 박스 추가 부분
+                      if (_showNotificationBox)
+                        Container(
+                          width: 350,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(top: 30, bottom: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF6F6F6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/icons/missing.png',
+                                        width: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        '긴급',
+                                        style: TextStyle(
+                                          height: 1.3,
+                                          fontSize: 16,
+                                          color: Color(0xFFE14004),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  GestureDetector(
+                                    onTap: _hideNotificationBox,
+                                    child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: const BoxDecoration(
+                                        color:
+                                            Color(0x80262626), // 투명도 50% 추가된 색상
+                                        shape: BoxShape.circle, // 동그라미 모양
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          'assets/images/icons/remove.png',
+                                          width: 14,
+                                          height: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                '[부산경찰청] 경찰은 부산진구에서 실종된 김도연씨(여, 78세)를 찾고 있습니다 - 146cm, 59kg, 주황색 상의, 하늘색 하의',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  height: 1.5,
+                                  color: Color(0xFF585858),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ),
+
               // 인기 글
               Container(
                 height: 330,
@@ -681,7 +783,7 @@ class _HomePageState extends State<HomePage> {
                             color: _selectedIndex == 0
                                 ? const Color(0xFF37A3E0)
                                 : const Color(0xFF484848),
-                            fontSize: 12,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -715,7 +817,7 @@ class _HomePageState extends State<HomePage> {
                             color: _selectedIndex == 1
                                 ? const Color(0xFF37A3E0)
                                 : const Color(0xFF484848),
-                            fontSize: 12,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -749,7 +851,7 @@ class _HomePageState extends State<HomePage> {
                             color: _selectedIndex == 2
                                 ? const Color(0xFF37A3E0)
                                 : const Color(0xFF484848),
-                            fontSize: 12,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -783,7 +885,7 @@ class _HomePageState extends State<HomePage> {
                             color: _selectedIndex == 3
                                 ? const Color(0xFF37A3E0)
                                 : const Color(0xFF484848),
-                            fontSize: 12,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -795,24 +897,26 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Positioned(
-            bottom: 100, // BottomNavigationBar 위에 배치되도록 여백 조정
+            bottom: 100, // SafeArea 적용
             right: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                // 글쓰기 버튼 클릭 시 동작
-              },
-              backgroundColor: const Color(0xFF37A3E0),
-              shape: const CircleBorder(),
-              elevation: 0,
-              child: SvgPicture.asset(
-                'assets/images/icons/write.svg',
-                width: 28,
-                height: 28,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
-              ), // 동그라미 모양으로 변경
+            child: SafeArea(
+              child: FloatingActionButton(
+                onPressed: () {
+                  // 글쓰기 버튼 클릭 시 동작
+                },
+                backgroundColor: const Color(0xFF37A3E0),
+                shape: const CircleBorder(),
+                elevation: 0,
+                child: SvgPicture.asset(
+                  'assets/images/icons/write.svg',
+                  width: 28,
+                  height: 28,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ), // 동그라미 모양으로 변경
+              ),
             ),
           ),
         ],
@@ -915,9 +1019,9 @@ class CategoryButton extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.08),
                   spreadRadius: 1,
-                  blurRadius: 10,
+                  blurRadius: 3,
                   offset: const Offset(0, 0),
                 ),
               ],
