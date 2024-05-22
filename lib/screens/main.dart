@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pangju/screens/home/home_screen.dart';
+import 'package:pangju/screens/home/write_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const HomePage(),
         '/items': (context) => const HomePage(),
+        '/write': (context) => const WritePage(),
       },
     );
   }

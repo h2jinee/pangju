@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:pangju/screens/home/write_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,8 +21,8 @@ class _HomePageState extends State<HomePage> {
   final int _itemsPerPage = 15;
   int _selectedCategoryIndex = 0;
   int _selectedIndex = 0; // 하단 네비게이션 바 선택 인덱스
-  bool _showNotificationBox = true; // 추가된 변수
-  bool _hasMoreItems = true; // 추가된 변수
+  bool _showNotificationBox = true; // 재난 문자 박스
+  bool _hasMoreItems = true; // API paging을 위함
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
       // 사용자 이름과 비밀번호를 Base64로 인코딩
       String username = 'user'; // 기본 사용자 이름
       String password =
-          '7a5f7c5c-306a-49ef-8265-71de2327efaf'; // Postman에서 사용한 비밀번호
+          'dac60633-4109-4b96-93c8-d4ae8b03ec92'; // Postman에서 사용한 비밀번호
       String basicAuth =
           'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
@@ -737,190 +738,173 @@ class _HomePageState extends State<HomePage> {
       ),
 
       // 하단 홈 화면
-      bottomNavigationBar: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Color(0xFFE5E5E5), // stroke color
-                  width: 1.0,
-                ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF37A3E0),
+        unselectedItemColor: const Color(0xFF484848),
+        onTap: _onItemTapped,
+        currentIndex: _selectedIndex,
+        items: [
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: SvgPicture.asset(
+                      'assets/images/icons/home.svg',
+                      colorFilter: ColorFilter.mode(
+                        _selectedIndex == 0
+                            ? const Color(0xFF37A3E0)
+                            : const Color(0xFF484848),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '홈',
+                    style: TextStyle(
+                      color: _selectedIndex == 0
+                          ? const Color(0xFF37A3E0)
+                          : const Color(0xFF484848),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
-              selectedItemColor: const Color(0xFF37A3E0),
-              unselectedItemColor: const Color(0xFF484848),
-              onTap: _onItemTapped,
-              currentIndex: _selectedIndex,
-              items: [
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: SvgPicture.asset(
-                            'assets/images/icons/home.svg',
-                            colorFilter: ColorFilter.mode(
-                              _selectedIndex == 0
-                                  ? const Color(0xFF37A3E0)
-                                  : const Color(0xFF484848),
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '홈',
-                          style: TextStyle(
-                            color: _selectedIndex == 0
-                                ? const Color(0xFF37A3E0)
-                                : const Color(0xFF484848),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: SvgPicture.asset(
-                            'assets/images/icons/place.svg',
-                            colorFilter: ColorFilter.mode(
-                              _selectedIndex == 1
-                                  ? const Color(0xFF37A3E0)
-                                  : const Color(0xFF484848),
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '내 근처',
-                          style: TextStyle(
-                            color: _selectedIndex == 1
-                                ? const Color(0xFF37A3E0)
-                                : const Color(0xFF484848),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: SvgPicture.asset(
-                            'assets/images/icons/chat.svg',
-                            colorFilter: ColorFilter.mode(
-                              _selectedIndex == 2
-                                  ? const Color(0xFF37A3E0)
-                                  : const Color(0xFF484848),
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '채팅',
-                          style: TextStyle(
-                            color: _selectedIndex == 2
-                                ? const Color(0xFF37A3E0)
-                                : const Color(0xFF484848),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: SvgPicture.asset(
-                            'assets/images/icons/mypage.svg',
-                            colorFilter: ColorFilter.mode(
-                              _selectedIndex == 3
-                                  ? const Color(0xFF37A3E0)
-                                  : const Color(0xFF484848),
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '마이',
-                          style: TextStyle(
-                            color: _selectedIndex == 3
-                                ? const Color(0xFF37A3E0)
-                                : const Color(0xFF484848),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: '',
-                ),
-              ],
-            ),
+            label: '',
           ),
-          Positioned(
-            bottom: 100, // SafeArea 적용
-            right: 20,
-            child: SafeArea(
-              child: FloatingActionButton(
-                onPressed: () {
-                  // 글쓰기 버튼 클릭 시 동작
-                },
-                backgroundColor: const Color(0xFF37A3E0),
-                shape: const CircleBorder(),
-                elevation: 0,
-                child: SvgPicture.asset(
-                  'assets/images/icons/write.svg',
-                  width: 28,
-                  height: 28,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: SvgPicture.asset(
+                      'assets/images/icons/place.svg',
+                      colorFilter: ColorFilter.mode(
+                        _selectedIndex == 1
+                            ? const Color(0xFF37A3E0)
+                            : const Color(0xFF484848),
+                        BlendMode.srcIn,
+                      ),
+                    ),
                   ),
-                ), // 동그라미 모양으로 변경
+                  Text(
+                    '내 근처',
+                    style: TextStyle(
+                      color: _selectedIndex == 1
+                          ? const Color(0xFF37A3E0)
+                          : const Color(0xFF484848),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: SvgPicture.asset(
+                      'assets/images/icons/chat.svg',
+                      colorFilter: ColorFilter.mode(
+                        _selectedIndex == 2
+                            ? const Color(0xFF37A3E0)
+                            : const Color(0xFF484848),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '채팅',
+                    style: TextStyle(
+                      color: _selectedIndex == 2
+                          ? const Color(0xFF37A3E0)
+                          : const Color(0xFF484848),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: SvgPicture.asset(
+                      'assets/images/icons/mypage.svg',
+                      colorFilter: ColorFilter.mode(
+                        _selectedIndex == 3
+                            ? const Color(0xFF37A3E0)
+                            : const Color(0xFF484848),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '마이',
+                    style: TextStyle(
+                      color: _selectedIndex == 3
+                          ? const Color(0xFF37A3E0)
+                          : const Color(0xFF484848),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            label: '',
           ),
         ],
       ),
+      persistentFooterButtons: [
+        Container(
+          child: FloatingActionButton(
+            onPressed: () {
+              print('글쓰기 버튼이 눌렸습니다'); // 로그 추가
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WritePage()),
+              ); // 페이지 이동
+            },
+            backgroundColor: const Color(0xFF37A3E0),
+            shape: const CircleBorder(),
+            elevation: 0,
+            child: SvgPicture.asset(
+              'assets/images/icons/write.svg',
+              width: 28,
+              height: 28,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ), // 동그라미 모양으로 변경
+          ),
+        ),
+      ],
     );
   }
 }
