@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
@@ -331,11 +332,15 @@ class _HomePageState extends State<HomePage> {
                                             shape: BoxShape.circle, // 동그라미 모양
                                           ),
                                           child: Center(
-                                            child: Image.asset(
-                                              'assets/images/icons/remove.png',
-                                              width: 14,
-                                              height: 14,
-                                              color: Colors.white,
+                                            child: SvgPicture.asset(
+                                              'assets/images/icons/remove.svg',
+                                              width: 12,
+                                              height: 12,
+                                              colorFilter:
+                                                  const ColorFilter.mode(
+                                                Colors.white,
+                                                BlendMode.srcIn,
+                                              ),
                                             ),
                                           ),
                                         ),
