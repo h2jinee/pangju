@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'package:pangju/screens/home/write_screen.dart';
+import 'package:pangju/screens/home/write_first_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -762,10 +762,10 @@ class _HomePageState extends State<HomePage> {
               right: 20, // 오른쪽에 배치
               child: FloatingActionButton(
                 onPressed: () {
-                  print('글쓰기 버튼이 눌렸습니다');
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const WritePage()),
+                    MaterialPageRoute(
+                        builder: (context) => const WriteFirstScreen()),
                   );
                 },
                 backgroundColor: const Color(0xFF37A3E0),
