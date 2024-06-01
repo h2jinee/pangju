@@ -42,17 +42,17 @@ class MyApp extends StatelessWidget {
             ); // 로딩 중 표시
           } else {
             if (snapshot.data == true) {
-              return const HomePage(); // 회원가입이 완료된 경우 홈 화면으로 이동
+              return const HomeScreen(); // 회원가입이 완료된 경우 홈 화면으로 이동
             } else {
               // return const WelcomeScreen(); // 회원가입이 완료되지 않은 경우 회원가입/로그인 화면으로 이동
-              return const HomePage(); // 회원가입이 완료되지 않은 경우 회원가입/로그인 화면으로 이동
+              return const HomeScreen(); // 회원가입이 완료되지 않은 경우 회원가입/로그인 화면으로 이동
             }
           }
         },
       ),
       routes: {
-        '/home': (context) => const HomePage(),
-        '/items': (context) => const HomePage(),
+        '/home': (context) => const HomeScreen(),
+        '/items': (context) => const HomeScreen(),
         '/write': (context) => const WriteFirstScreen(),
       },
     );

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class BottomBar extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onRegister;
+  final bool isFirstPage;
 
   const BottomBar({
     super.key,
     required this.onNext,
     required this.onRegister,
+    this.isFirstPage = true,
   });
 
   @override
@@ -27,20 +29,24 @@ class BottomBar extends StatelessWidget {
             children: [
               _buildBottomBarButton(
                 text: '이전',
-                isEnabled: false,
-                onPressed: () {},
+                isEnabled: !isFirstPage,
+                onPressed: () {
+                  if (!isFirstPage) {
+                    Navigator.of(context).pop(); // 이전 페이지로 이동
+                  }
+                },
               ),
               const SizedBox(width: 8),
               _buildBottomBarButton(
                 text: '다음',
-                isEnabled: true,
+                isEnabled: isFirstPage,
                 onPressed: onNext,
               ),
             ],
           ),
           _buildRegisterButton(
             text: '등록',
-            isEnabled: false,
+            isEnabled: !isFirstPage,
             onPressed: onRegister,
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pangju/screens/home/utils.dart';
 import 'bottom_bar.dart'; // 새로운 BottomBar 위젯을 임포트
 import 'write_second_screen.dart'; // 새로 만든 두 번째 화면 임포트
 
@@ -15,6 +16,7 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
   Set<String> selectedSubcategories = {};
   String? selectedGender;
   String? selectedAgeGroup;
+  Set<String> selectedRegions = {};
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
               height: 20,
             ),
             onPressed: () {
-              Navigator.of(context).pop();
+              showCancelDialog(context); // 글쓰기 취소 알림 표시
             },
           ),
         ),
@@ -261,38 +263,176 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
               ),
               const SizedBox(height: 16), // 여백 추가
               Center(
-                child: Container(
-                  width: 350,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE5E5E5)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '지역을 선택해주세요.',
-                        style: TextStyle(
-                          color: Color(0xFF484848),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
+                child: GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor:
+                          Colors.transparent, // 배경색을 투명으로 설정하여 팝업 외부를 어둡게 처리
+                      isScrollControlled: true,
+                      builder: (BuildContext context) {
+                        return FractionallySizedBox(
+                          heightFactor: 0.8,
+                          child: StatefulBuilder(
+                            // StatefulBuilder 추가
+                            builder:
+                                (BuildContext context, StateSetter setState) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(25),
+                                    topRight: Radius.circular(25),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      margin: const EdgeInsets.only(top: 12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const Text(
+                                      '지역을 선택해 주세요 (중복 가능)',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      '찾고 있는 사람과 만났던 장소,\n혹은 잃어버린 물건의 위치를 선택해 주세요.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                        color: Color(0XFFA5A5A5),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 35),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0),
+                                        child: GridView.builder(
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3,
+                                            crossAxisSpacing: 10,
+                                            mainAxisSpacing: 10,
+                                            childAspectRatio: (110 / 48),
+                                          ),
+                                          itemCount: 18,
+                                          itemBuilder: (context, index) {
+                                            final regions = [
+                                              '서울',
+                                              '경기',
+                                              '인천',
+                                              '대전',
+                                              '충북',
+                                              '충남',
+                                              '부산',
+                                              '대구',
+                                              '경북',
+                                              '경남',
+                                              '울산',
+                                              '광주',
+                                              '전북',
+                                              '전남',
+                                              '세종',
+                                              '강원',
+                                              '제주',
+                                              '기타'
+                                            ];
+                                            return _buildRegionBox(
+                                                regions[index], setState);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          // 부모 위젯의 상태 업데이트
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 350,
+                                        height: 47,
+                                        decoration: BoxDecoration(
+                                          color: selectedRegions.isNotEmpty
+                                              ? const Color(0xFF37A3E0)
+                                              : const Color(0xFFF1F1F1),
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '선택완료',
+                                            style: TextStyle(
+                                              color: selectedRegions.isNotEmpty
+                                                  ? Colors.white
+                                                  : const Color(0xFFC3C3C3),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ).then((_) {
+                      setState(() {}); // 팝업이 닫힌 후 부모 위젯의 상태를 업데이트
+                    });
+                  },
+                  child: Container(
+                    width: 350,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE5E5E5)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          selectedRegions.isNotEmpty
+                              ? selectedRegions.join(' / ')
+                              : '지역을 선택해주세요.',
+                          style: const TextStyle(
+                            color: Color(0xFF484848),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Image.asset(
-                          'assets/images/icons/rightarrow.png',
+                        SizedBox(
                           width: 24,
                           height: 24,
+                          child: Image.asset(
+                            'assets/images/icons/rightarrow.png',
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
+
               const SizedBox(height: 20), // 여백 추가
             ],
           ),
@@ -325,6 +465,7 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
         onRegister: () {
           // Register button logic
         },
+        isFirstPage: true, // 첫 번째 페이지에서는 다음 버튼이 활성화
       ),
       backgroundColor: Colors.white, // Body background color
     );
@@ -513,6 +654,42 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
           title,
           style: const TextStyle(
             color: Color(0xFF484848),
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionBox(String title, StateSetter setState) {
+    bool isSelected = selectedRegions.contains(title);
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            selectedRegions.remove(title);
+          } else {
+            selectedRegions.add(title);
+          }
+        });
+      },
+      child: Container(
+        width: 110,
+        height: 48,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color:
+                isSelected ? const Color(0xFF7B7B7B) : const Color(0xFFE5E5E5),
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          title,
+          style: TextStyle(
+            color:
+                isSelected ? const Color(0xFF484848) : const Color(0xFF484848),
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),

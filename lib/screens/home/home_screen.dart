@@ -3,16 +3,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:pangju/screens/home/utils.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final List<Map<String, dynamic>> _items = [];
@@ -762,11 +763,15 @@ class _HomePageState extends State<HomePage> {
               right: 20, // 오른쪽에 배치
               child: FloatingActionButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const WriteFirstScreen()),
-                  );
+                  if (true) {
+                    showLoadDraftDialog(context);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const WriteFirstScreen()),
+                    );
+                  }
                 },
                 backgroundColor: const Color(0xFF37A3E0),
                 shape: const CircleBorder(),

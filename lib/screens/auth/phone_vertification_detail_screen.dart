@@ -49,7 +49,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     // Code to verify the entered verification code
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
   }
 
