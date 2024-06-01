@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:multi_image_picker2/multi_image_picker2.dart';
-import 'package:pangju/screens/home/bottom_bar.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pangju/screens/home/utils.dart';
+import 'bottom_bar.dart';
+import 'dart:io';
 
 class WriteSecondScreen extends StatefulWidget {
   const WriteSecondScreen({super.key});
@@ -13,33 +14,18 @@ class WriteSecondScreen extends StatefulWidget {
 
 class _WriteSecondScreenState extends State<WriteSecondScreen> {
   final TextEditingController _contentController = TextEditingController();
-  List<Asset> _images = <Asset>[];
+  final ImagePicker _picker = ImagePicker();
+  List<XFile>? _imageFiles = [];
 
   Future<void> _pickImages() async {
-    List<Asset> resultList = <Asset>[];
     try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 5,
-        enableCamera: true,
-        selectedAssets: _images,
-        cupertinoOptions: const CupertinoOptions(takePhotoIcon: "chat"),
-        materialOptions: const MaterialOptions(
-          actionBarColor: "#abcdef",
-          actionBarTitle: "Select Images",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#000000",
-        ),
-      );
+      final List<XFile> selectedImages = await _picker.pickMultiImage();
+      setState(() {
+        _imageFiles = selectedImages;
+      });
     } catch (e) {
-      // Handle error or cancellation
+      print("Image selection error: $e");
     }
-
-    if (!mounted) return;
-
-    setState(() {
-      _images = resultList;
-    });
   }
 
   @override
@@ -156,9 +142,11 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                const SizedBox(height: 15), // 여백 추가
+                const SizedBox(height: 16), // 여백 추가
                 GestureDetector(
-                  onTap: _pickImages, // 이미지 선택 함수 호출
+                  onTap: () {
+                    _pickImages();
+                  },
                   child: Stack(
                     children: [
                       Container(
@@ -168,7 +156,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                           color: const Color(0xFFE5E5E5),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: _images.isEmpty
+                        child: _imageFiles!.isEmpty
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -188,12 +176,11 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                                 ],
                               )
                             : PageView.builder(
-                                itemCount: _images.length,
+                                itemCount: _imageFiles!.length,
                                 itemBuilder: (context, index) {
-                                  return AssetThumb(
-                                    asset: _images[index],
-                                    width: 350,
-                                    height: 350,
+                                  return Image.file(
+                                    File(_imageFiles![index].path),
+                                    fit: BoxFit.cover,
                                   );
                                 },
                               ),
@@ -210,7 +197,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              '${_images.length} / 5', // 선택한 이미지 개수 표시
+                              '${_imageFiles!.length} / 5', // 선택한 이미지 개수 표시
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -224,15 +211,16 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                   ),
                 ),
                 const SizedBox(height: 20), // 여백 추가
-                if (_images.isNotEmpty)
+                if (_imageFiles!.isNotEmpty)
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
-                    children: _images
-                        .map((image) => AssetThumb(
-                              asset: image,
+                    children: _imageFiles!
+                        .map((image) => Image.file(
+                              File(image.path),
                               width: 100,
                               height: 100,
+                              fit: BoxFit.cover,
                             ))
                         .toList(),
                   ),
