@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pangju/screens/home/utils.dart';
+import 'load_image_screen.dart';
 import 'bottom_bar.dart';
 import 'dart:io';
 
@@ -14,17 +14,22 @@ class WriteSecondScreen extends StatefulWidget {
 
 class _WriteSecondScreenState extends State<WriteSecondScreen> {
   final TextEditingController _contentController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
-  List<XFile>? _imageFiles = [];
+  final List<File> _selectedImages = [];
 
-  Future<void> _pickImages() async {
-    try {
-      final List<XFile>? selectedImages = await _picker.pickMultiImage();
+  Future<void> _navigateAndPickImage(BuildContext context) async {
+    final File? selectedImage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoadImageScreen(),
+      ),
+    );
+
+    if (selectedImage != null) {
       setState(() {
-        _imageFiles = selectedImages!;
+        if (_selectedImages.length < 5) {
+          _selectedImages.add(selectedImage);
+        }
       });
-    } catch (e) {
-      print("Image selection error: $e");
     }
   }
 
@@ -148,7 +153,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                   const SizedBox(height: 16), // 여백 추가
                   GestureDetector(
                     onTap: () {
-                      _pickImages();
+                      _navigateAndPickImage(context);
                     },
                     child: Stack(
                       children: [
@@ -159,7 +164,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                             color: const Color(0xFFE5E5E5),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: _imageFiles!.isEmpty
+                          child: _selectedImages.isEmpty
                               ? Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -179,10 +184,10 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                                   ],
                                 )
                               : PageView.builder(
-                                  itemCount: _imageFiles!.length,
+                                  itemCount: _selectedImages.length,
                                   itemBuilder: (context, index) {
                                     return Image.file(
-                                      File(_imageFiles![index].path),
+                                      _selectedImages[index],
                                       fit: BoxFit.cover,
                                     );
                                   },
@@ -200,7 +205,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                '${_imageFiles!.length} / 5', // 선택한 이미지 개수 표시
+                                '${_selectedImages.length} / 5', // 선택한 이미지 개수 표시
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -214,19 +219,40 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                     ),
                   ),
                   const SizedBox(height: 20), // 여백 추가
-                  if (_imageFiles!.isNotEmpty)
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: _imageFiles!
-                          .map((image) => Image.file(
-                                File(image.path),
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ))
-                          .toList(),
-                    ),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: _selectedImages
+                        .map((image) => Stack(
+                              children: [
+                                Image.file(
+                                  image,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedImages.remove(image);
+                                      });
+                                    },
+                                    child: Container(
+                                      color: Colors.black54,
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ))
+                        .toList(),
+                  ),
                   const SizedBox(height: 20), // 여백 추가
                   RichText(
                     text: const TextSpan(
