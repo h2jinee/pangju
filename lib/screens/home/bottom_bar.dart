@@ -15,8 +15,12 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      height: 68,
+      padding: EdgeInsets.only(
+        left: 15,
+        right: 15,
+        bottom: MediaQuery.of(context).padding.bottom + 15, // 하단 여백 추가
+      ),
+      height: 80 + MediaQuery.of(context).padding.bottom, // 높이를 조절하여 하단 여백 추가
       decoration: const BoxDecoration(
         border: Border(
           top: BorderSide(color: Color(0xFFE5E5E5), width: 1),
