@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:pangju/screens/home/utils.dart';
 import 'load_image_screen.dart';
 import 'bottom_bar.dart';
 import 'dart:io';
@@ -17,17 +16,21 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
   final List<File> _selectedImages = [];
 
   Future<void> _navigateAndPickImage(BuildContext context) async {
-    final File? selectedImage = await Navigator.push(
+    final List<File>? selectedImages = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const LoadImageScreen(),
       ),
     );
 
-    if (selectedImage != null) {
+    if (selectedImages != null) {
       setState(() {
-        if (_selectedImages.length < 5) {
-          _selectedImages.add(selectedImage);
+        if (_selectedImages.length + selectedImages.length <= 5) {
+          _selectedImages.addAll(selectedImages);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이미지는 최대 5개까지 첨부할 수 있습니다.')),
+          );
         }
       });
     }
@@ -37,7 +40,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus(); // 다른 영역을 클릭하면 키보드를 닫음
+        FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         appBar: AppBar(
@@ -46,10 +49,10 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
           centerTitle: true,
           title: const Text(
             '글쓰기',
-            style: TextStyle(color: Colors.black), // 글씨 색상 변경
+            style: TextStyle(color: Colors.black),
           ),
           leading: Padding(
-            padding: const EdgeInsets.only(left: 10.0), // 왼쪽 마진 추가
+            padding: const EdgeInsets.only(left: 10.0),
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/images/icons/remove.svg',
@@ -57,7 +60,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                 height: 20,
               ),
               onPressed: () {
-                showCancelDialog(context); // 글쓰기 취소 알림 표시
+                // 글쓰기 취소 알림 표시
               },
             ),
           ),
@@ -78,14 +81,13 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
               ),
             ),
           ],
-          elevation: 0, // 그림자 없애기
+          elevation: 0,
         ),
         body: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 20.0), // 좌우 여백을 동일하게 설정
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: SingleChildScrollView(
             child: Align(
-              alignment: Alignment.topCenter, // 전체 화면에서 중앙 정렬
+              alignment: Alignment.topCenter,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,11 +111,11 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10), // 여백 추가
+                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
                     height: 49,
-                    margin: const EdgeInsets.only(bottom: 20), // 추가된 여백
+                    margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF6F6F6),
                       borderRadius: BorderRadius.circular(8),
@@ -130,7 +132,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15), // 여백 추가
+                  const SizedBox(height: 15),
                   RichText(
                     text: const TextSpan(
                       text: '사진 (선택)',
@@ -141,7 +143,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5), // 여백 추가
+                  const SizedBox(height: 5),
                   const Text(
                     '이미지는 최대 5개까지 첨부할 수 있어요.',
                     style: TextStyle(
@@ -150,7 +152,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(height: 16), // 여백 추가
+                  const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () {
                       _navigateAndPickImage(context);
@@ -173,7 +175,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                                       width: 50,
                                       height: 50,
                                     ),
-                                    const SizedBox(height: 10), // 여백 추가
+                                    const SizedBox(height: 10),
                                     const Text(
                                       '클릭하여 이미지를 업로드해 주세요',
                                       style: TextStyle(
@@ -197,7 +199,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                           right: 10,
                           top: 10,
                           child: Container(
-                            width: 60, // 너비를 넓혀 텍스트가 잘리지 않도록 수정
+                            width: 60,
                             height: 26,
                             decoration: BoxDecoration(
                               color: const Color(0xE5262626),
@@ -205,7 +207,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                '${_selectedImages.length} / 5', // 선택한 이미지 개수 표시
+                                '${_selectedImages.length} / 5',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -218,7 +220,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20), // 여백 추가
+                  const SizedBox(height: 20),
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -253,7 +255,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                             ))
                         .toList(),
                   ),
-                  const SizedBox(height: 20), // 여백 추가
+                  const SizedBox(height: 20),
                   RichText(
                     text: const TextSpan(
                       text: '내용',
@@ -274,7 +276,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10), // 여백 추가
+                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -287,7 +289,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 30), // 여백 추가
+                      padding: const EdgeInsets.only(bottom: 30),
                       child: TextFormField(
                         controller: _contentController,
                         minLines: 5,
@@ -303,7 +305,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20), // 여백 추가
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -316,9 +318,9 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
           onRegister: () {
             // 등록 버튼 로직 추가
           },
-          isFirstPage: false, // 두 번째 페이지에서는 이전 버튼이 활성화
+          isFirstPage: false,
         ),
-        backgroundColor: Colors.white, // Body background color
+        backgroundColor: Colors.white,
       ),
     );
   }
