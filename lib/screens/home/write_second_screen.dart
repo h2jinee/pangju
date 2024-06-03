@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'load_image_screen.dart';
-import 'bottom_bar.dart';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pangju/screens/home/utils.dart';
+
+import 'bottom_bar.dart';
+import 'load_image_screen.dart';
 
 class WriteSecondScreen extends StatefulWidget {
   const WriteSecondScreen({super.key});
@@ -14,19 +17,24 @@ class WriteSecondScreen extends StatefulWidget {
 class _WriteSecondScreenState extends State<WriteSecondScreen> {
   final TextEditingController _contentController = TextEditingController();
   final List<File> _selectedImages = [];
+  int _currentImageIndex = 0;
 
   Future<void> _navigateAndPickImage(BuildContext context) async {
     final List<File>? selectedImages = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LoadImageScreen(),
+        builder: (context) => LoadImageScreen(
+          initialSelectedImages: _selectedImages,
+        ),
       ),
     );
 
     if (selectedImages != null) {
       setState(() {
         if (_selectedImages.length + selectedImages.length <= 5) {
+          _selectedImages.clear();
           _selectedImages.addAll(selectedImages);
+          _currentImageIndex = 0; // Reset the current image index
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('이미지는 최대 5개까지 첨부할 수 있습니다.')),
@@ -34,6 +42,27 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
         }
       });
     }
+  }
+
+  void _nextImage() {
+    setState(() {
+      if (_currentImageIndex < _selectedImages.length - 1) {
+        _currentImageIndex++;
+      } else {
+        _currentImageIndex = 0; // Go to the first image if it's the last one
+      }
+    });
+  }
+
+  void _previousImage() {
+    setState(() {
+      if (_currentImageIndex > 0) {
+        _currentImageIndex--;
+      } else {
+        _currentImageIndex = _selectedImages.length -
+            1; // Go to the last image if it's the first one
+      }
+    });
   }
 
   @override
@@ -60,7 +89,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                 height: 20,
               ),
               onPressed: () {
-                // 글쓰기 취소 알림 표시
+                showCancelDialog(context); // 글쓰기 취소 알림 표시
               },
             ),
           ),
@@ -155,7 +184,9 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                   const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () {
-                      _navigateAndPickImage(context);
+                      if (_selectedImages.isEmpty) {
+                        _navigateAndPickImage(context);
+                      }
                     },
                     child: Stack(
                       children: [
@@ -185,14 +216,147 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                                     ),
                                   ],
                                 )
-                              : PageView.builder(
-                                  itemCount: _selectedImages.length,
-                                  itemBuilder: (context, index) {
-                                    return Image.file(
-                                      _selectedImages[index],
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: Image.file(
+                                          _selectedImages[_currentImageIndex],
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        left: 10,
+                                        top: 0,
+                                        bottom: 0,
+                                        child: IconButton(
+                                          icon: Image.asset(
+                                            'assets/images/icons/image_left_arrow.png',
+                                          ),
+                                          onPressed: _previousImage,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 10,
+                                        top: 0,
+                                        bottom: 0,
+                                        child: IconButton(
+                                          icon: Image.asset(
+                                            'assets/images/icons/image_right_arrow.png',
+                                          ),
+                                          onPressed: _nextImage,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 15,
+                                        right: 15,
+                                        child: Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                _navigateAndPickImage(context);
+                                              },
+                                              child: Container(
+                                                width: 78,
+                                                height: 37,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                    color:
+                                                        const Color(0xFFE5E5E5),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SvgPicture.asset(
+                                                      'assets/images/icons/write.svg',
+                                                      width: 20,
+                                                      height: 20,
+                                                      colorFilter:
+                                                          const ColorFilter
+                                                              .mode(
+                                                        Color(0xFF484848),
+                                                        BlendMode.srcIn,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 2),
+                                                    const Text(
+                                                      '수정',
+                                                      style: TextStyle(
+                                                        color:
+                                                            Color(0xFF484848),
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedImages.removeAt(
+                                                      _currentImageIndex);
+                                                  if (_currentImageIndex > 0) {
+                                                    _currentImageIndex--;
+                                                  }
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 78,
+                                                height: 37,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                    color:
+                                                        const Color(0xFFE5E5E5),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SvgPicture.asset(
+                                                      'assets/images/icons/recycle_bin.svg',
+                                                      width: 20,
+                                                      height: 20,
+                                                      colorFilter:
+                                                          const ColorFilter
+                                                              .mode(
+                                                        Color(0xFF484848),
+                                                        BlendMode.srcIn,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 2),
+                                                    const Text(
+                                                      '삭제',
+                                                      style: TextStyle(
+                                                        color:
+                                                            Color(0xFF484848),
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                         ),
                         Positioned(
@@ -207,7 +371,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                '${_selectedImages.length} / 5',
+                                '${_selectedImages.isEmpty ? 0 : _currentImageIndex + 1} / ${_selectedImages.length}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -219,41 +383,6 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _selectedImages
-                        .map((image) => Stack(
-                              children: [
-                                Image.file(
-                                  image,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedImages.remove(image);
-                                      });
-                                    },
-                                    child: Container(
-                                      color: Colors.black54,
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ))
-                        .toList(),
                   ),
                   const SizedBox(height: 20),
                   RichText(

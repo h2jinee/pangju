@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pangju/screens/home/utils.dart';
+
 import 'bottom_bar.dart'; // 새로운 BottomBar 위젯을 임포트
 import 'write_second_screen.dart'; // 새로 만든 두 번째 화면 임포트
 
@@ -422,7 +423,7 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
                           width: 24,
                           height: 24,
                           child: Image.asset(
-                            'assets/images/icons/rightarrow.png',
+                            'assets/images/icons/right_arrow.png',
                             width: 24,
                             height: 24,
                           ),
