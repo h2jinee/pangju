@@ -35,8 +35,8 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
           child: IconButton(
             icon: SvgPicture.asset(
               'assets/images/icons/remove.svg',
-              width: 20,
-              height: 20,
+              width: 15.65,
+              height: 15.72,
             ),
             onPressed: () {
               showCancelDialog(context); // 글쓰기 취소 알림 표시
@@ -54,7 +54,7 @@ class _WriteFirstScreenState extends State<WriteFirstScreen> {
                 '임시저장',
                 style: TextStyle(
                   color: Color(0xFF37A3E0),
-                  fontSize: 20,
+                  fontSize: 18,
                 ),
               ),
             ),

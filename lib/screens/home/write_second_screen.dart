@@ -31,15 +31,9 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
 
     if (selectedImages != null) {
       setState(() {
-        if (_selectedImages.length + selectedImages.length <= 5) {
-          _selectedImages.clear();
-          _selectedImages.addAll(selectedImages);
-          _currentImageIndex = 0; // Reset the current image index
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('이미지는 최대 5개까지 첨부할 수 있습니다.')),
-          );
-        }
+        _selectedImages.clear();
+        _selectedImages.addAll(selectedImages);
+        _currentImageIndex = 0; // Reset the current image index
       });
     }
   }
@@ -85,8 +79,8 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/images/icons/remove.svg',
-                width: 20,
-                height: 20,
+                width: 15.65,
+                height: 15.72,
               ),
               onPressed: () {
                 showCancelDialog(context); // 글쓰기 취소 알림 표시
@@ -104,7 +98,7 @@ class _WriteSecondScreenState extends State<WriteSecondScreen> {
                   '임시저장',
                   style: TextStyle(
                     color: Color(0xFF37A3E0),
-                    fontSize: 20,
+                    fontSize: 18,
                   ),
                 ),
               ),
