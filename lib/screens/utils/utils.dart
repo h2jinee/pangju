@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
-import 'home_screen.dart';
+import '../home/home_screen.dart';
 
 void showCancelDialog(BuildContext context) {
   showDialog(

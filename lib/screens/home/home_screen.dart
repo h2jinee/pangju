@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'package:pangju/screens/home/utils.dart';
+import 'package:pangju/widgets/bottom_navigation_bar.dart';
+import 'package:pangju/screens/utils/utils.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -69,26 +70,35 @@ class _HomePageState extends State<HomeScreen> {
         List<Map<String, dynamic>> newItems =
             List<Map<String, dynamic>>.from(json.decode(response.body));
         if (newItems.isEmpty) {
-          setState(() {
-            _hasMoreItems = false; // 더 이상 아이템이 없음을 표시
-            _isLoading = false;
-          });
+          if (mounted) {
+            // mounted 속성 추가
+            setState(() {
+              _hasMoreItems = false; // 더 이상 아이템이 없음을 표시
+              _isLoading = false;
+            });
+          }
           return; // 더 이상 데이터를 가져오지 않도록 반환
         }
-        setState(() {
-          _items.addAll(newItems); // 중복 체크를 제거하고 데이터 추가
-          _isLoading = false;
-          _currentPage++; // 페이지 번호 증가
-        });
+        if (mounted) {
+          // mounted 속성 추가
+          setState(() {
+            _items.addAll(newItems); // 중복 체크를 제거하고 데이터 추가
+            _isLoading = false;
+            _currentPage++; // 페이지 번호 증가
+          });
+        }
       } else {
         print('Failed to load items with status: ${response.statusCode}');
         throw Exception('Failed to load items');
       }
     } catch (e) {
       print('Error: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        // mounted 속성 추가
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -118,13 +128,6 @@ class _HomePageState extends State<HomeScreen> {
         curve: Curves.easeInOut,
       );
     }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    // 여기에 각 탭에 대한 동작을 추가할 수 있습니다.
   }
 
   void _hideNotificationBox() {
@@ -763,6 +766,13 @@ class _HomePageState extends State<HomeScreen> {
               right: 20, // 오른쪽에 배치
               child: FloatingActionButton(
                 onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WriteFirstScreen()),
+                  );
+                  // TODO : 임시저장된 데이터가 있으면 불러오기
+                  /*
                   if (true) {
                     showLoadDraftDialog(context);
                   } else {
@@ -772,6 +782,7 @@ class _HomePageState extends State<HomeScreen> {
                           builder: (context) => const WriteFirstScreen()),
                     );
                   }
+                  */
                 },
                 backgroundColor: const Color(0xFF37A3E0),
                 shape: const CircleBorder(),
@@ -795,142 +806,17 @@ class _HomePageState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF37A3E0),
         unselectedItemColor: const Color(0xFF484848),
-        onTap: _onItemTapped,
+        onTap: (index) => onItemTapped(context, index, (int idx) {
+          setState(() {
+            _selectedIndex = idx;
+          });
+        }),
         currentIndex: _selectedIndex,
-        items: [
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: SvgPicture.asset(
-                      'assets/images/icons/home.svg',
-                      colorFilter: ColorFilter.mode(
-                        _selectedIndex == 0
-                            ? const Color(0xFF37A3E0)
-                            : const Color(0xFF484848),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '홈',
-                    style: TextStyle(
-                      color: _selectedIndex == 0
-                          ? const Color(0xFF37A3E0)
-                          : const Color(0xFF484848),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: SvgPicture.asset(
-                      'assets/images/icons/place.svg',
-                      colorFilter: ColorFilter.mode(
-                        _selectedIndex == 1
-                            ? const Color(0xFF37A3E0)
-                            : const Color(0xFF484848),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '내 근처',
-                    style: TextStyle(
-                      color: _selectedIndex == 1
-                          ? const Color(0xFF37A3E0)
-                          : const Color(0xFF484848),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: SvgPicture.asset(
-                      'assets/images/icons/chat.svg',
-                      colorFilter: ColorFilter.mode(
-                        _selectedIndex == 2
-                            ? const Color(0xFF37A3E0)
-                            : const Color(0xFF484848),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '채팅',
-                    style: TextStyle(
-                      color: _selectedIndex == 2
-                          ? const Color(0xFF37A3E0)
-                          : const Color(0xFF484848),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5), // 상하 간격 조정
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: SvgPicture.asset(
-                      'assets/images/icons/mypage.svg',
-                      colorFilter: ColorFilter.mode(
-                        _selectedIndex == 3
-                            ? const Color(0xFF37A3E0)
-                            : const Color(0xFF484848),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '마이',
-                    style: TextStyle(
-                      color: _selectedIndex == 3
-                          ? const Color(0xFF37A3E0)
-                          : const Color(0xFF484848),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            label: '',
-          ),
-        ],
+        items: bottomNavigationBarItems(context, _selectedIndex, (int idx) {
+          setState(() {
+            _selectedIndex = idx;
+          });
+        }),
       ),
     );
   }
