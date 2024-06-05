@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.pangju">
+    package="com.pangju"
+    android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
     <!-- 권한 추가 -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -39,6 +40,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="xhihwzgpec" />
 
         <!-- File provider 추가 -->
         <provider
