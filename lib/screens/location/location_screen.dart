@@ -1,10 +1,10 @@
-import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:pangju/widgets/bottom_navigation_bar.dart';
 
 void main() async {
@@ -54,6 +54,7 @@ class _LocationScreenState extends State<LocationScreen> {
   int _selectedIndex = 1; // 해당 페이지의 인덱스
   final Completer<NaverMapController> mapControllerCompleter = Completer();
   bool _isMapSdkInitialized = false;
+  double _currentChildSize = 0.1;
 
   @override
   void initState() {
@@ -84,9 +85,9 @@ class _LocationScreenState extends State<LocationScreen> {
     }
   }
 
-  void onItemTapped(int index) {
+  void _updateChildSize(double size) {
     setState(() {
-      _selectedIndex = index;
+      _currentChildSize = size;
     });
   }
 
@@ -117,43 +118,96 @@ class _LocationScreenState extends State<LocationScreen> {
                   BlendMode.srcIn,
                 ),
               ),
-              onPressed: () {
-                // 검색 아이콘 클릭 시 동작
+              onPressed: () {}, // Search button action
+            ),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xFFE5E5E5),
+            height: 1.0,
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          if (_isMapSdkInitialized)
+            NaverMap(
+              options: const NaverMapViewOptions(
+                indoorEnable: true, // 실내 맵 사용 가능 여부 설정
+                locationButtonEnable: false, // 위치 버튼 표시 여부 설정
+                consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
+              ),
+              onMapReady: (controller) async {
+                // 지도 준비 완료 시 호출되는 콜백 함수
+                mapControllerCompleter
+                    .complete(controller); // Completer에 지도 컨트롤러 완료 신호 전송
+                log("onMapReady", name: "onMapReady");
+              },
+            )
+          else
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+          NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              _updateChildSize(notification.extent);
+              return true;
+            },
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.1,
+              minChildSize: 0.1,
+              maxChildSize: 1.0,
+              snap: true,
+              snapSizes: const [0.1, 0.5, 1.0],
+              builder:
+                  (BuildContext context, ScrollController scrollController) {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: _currentChildSize == 1.0
+                        ? BorderRadius.zero
+                        : const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                    boxShadow: _currentChildSize == 1.0
+                        ? []
+                        : [
+                            const BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10.0,
+                              spreadRadius: 0.5,
+                            ),
+                          ],
+                  ),
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: 30,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text('Item $index'),
+                      );
+                    },
+                  ),
+                );
               },
             ),
           ),
         ],
       ),
-      body: _isMapSdkInitialized
-          ? Column(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: NaverMap(
-                    options: const NaverMapViewOptions(
-                      indoorEnable: true, // 실내 맵 사용 가능 여부 설정
-                      locationButtonEnable: false, // 위치 버튼 표시 여부 설정
-                      consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
-                    ),
-                    onMapReady: (controller) async {
-                      // 지도 준비 완료 시 호출되는 콜백 함수
-                      mapControllerCompleter
-                          .complete(controller); // Completer에 지도 컨트롤러 완료 신호 전송
-                      log("onMapReady", name: "onMapReady");
-                    },
-                  ),
-                ),
-              ],
-            )
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF37A3E0),
         unselectedItemColor: const Color(0xFF484848),
-        onTap: (index) => onItemTapped(index),
+        onTap: (index) => onItemTapped(context, index, (int idx) {
+          setState(() {
+            _selectedIndex = idx;
+          });
+        }),
         currentIndex: _selectedIndex,
         items: bottomNavigationBarItems(context, _selectedIndex, (int idx) {
           setState(() {

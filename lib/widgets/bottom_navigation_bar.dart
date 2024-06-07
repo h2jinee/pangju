@@ -167,3 +167,51 @@ void onItemTapped(BuildContext context, int index, Function(int) setState) {
     MaterialPageRoute(builder: (context) => screen),
   );
 }
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int _selectedIndex = 1; // 현재 선택된 페이지의 인덱스
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Color(0xFFE5E5E5),
+                width: 1.0,
+              ),
+            ),
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF37A3E0),
+            unselectedItemColor: const Color(0xFF484848),
+            onTap: (index) => onItemTapped(context, index, (int idx) {
+              setState(() {
+                _selectedIndex = idx;
+              });
+            }),
+            currentIndex: _selectedIndex,
+            items: bottomNavigationBarItems(context, _selectedIndex, (int idx) {
+              setState(() {
+                _selectedIndex = idx;
+              });
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MyApp());
+}
