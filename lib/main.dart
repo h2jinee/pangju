@@ -1,57 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 import 'package:pangju/screens/home/home_screen.dart';
-import 'package:pangju/screens/auth/welcome_screen.dart';
-import 'package:pangju/widgets/bottom_navigation_bar.dart';
-import 'package:pangju/screens/service/api_service.dart';
+import 'package:pangju/screens/location/location_screen.dart';
+import 'package:pangju/screens/chat/chat_screen.dart';
+import 'package:pangju/screens/my_page/my_page_screen.dart';
+import 'package:pangju/controller/navigation_controller.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await ApiService.initializeNaverMapSdk();
+void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future<bool> checkIfSignedUp() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isSignedUp') ?? false;
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: 'pangju',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MainScreen(),
+    );
   }
+}
+
+class MainScreen extends StatelessWidget {
+  final NavigationController navigationController =
+      Get.put(NavigationController());
+
+  MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Pretendard',
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(
-            height: 1.3,
-            letterSpacing: -0.2,
-          ),
-        ),
-      ),
-      themeMode: ThemeMode.system,
-      home: FutureBuilder<bool>(
-        future: checkIfSignedUp(),
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            if (snapshot.data == true) {
-              return const BottomNavigationScreen();
-            } else {
-              return const WelcomeScreen();
-            }
-          }
-        },
-      ),
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        // 다른 라우트 추가
-      },
+    return Scaffold(
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
+            currentIndex: navigationController.selectedIndex.value,
+            onTap: navigationController.changeIndex,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.location_on),
+                label: 'Location',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat),
+                label: 'Chat',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'My Page',
+              ),
+            ],
+          )),
+      body: Obx(() {
+        switch (navigationController.selectedIndex.value) {
+          case 0:
+            return const HomeScreen();
+          case 1:
+            return const LocationScreen();
+          case 2:
+            return const ChatScreen();
+          case 3:
+            return const MyPageScreen();
+          default:
+            return const HomeScreen();
+        }
+      }),
     );
   }
 }

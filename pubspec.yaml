@@ -41,6 +41,7 @@ dependencies:
   photo_manager: ^3.1.1
   photo_manager_image_provider: ^2.1.1
   permission_handler: ^11.3.1
+  get: ^4.6.6
 
 dev_dependencies:
   flutter_test:

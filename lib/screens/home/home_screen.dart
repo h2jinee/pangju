@@ -2,12 +2,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:pangju/widgets/bottom_navigation_bar.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 import 'package:pangju/screens/service/api_service.dart';
 import 'package:pangju/widgets/category_constants.dart';
 import 'package:pangju/widgets/category_box.dart';
 import 'package:pangju/widgets/category_button.dart';
+import 'package:pangju/controller/navigation_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,11 +22,11 @@ class _HomePageState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final List<Map<String, dynamic>> _items = [];
+  final NavigationController navigationController = Get.find();
   bool _isLoading = false;
   int _currentPage = 1;
   final int _itemsPerPage = 15;
   int _selectedCategoryIndex = 0;
-  int _selectedIndex = 0;
   bool _showNotificationBox = true;
   bool _hasMoreItems = true;
 
@@ -710,23 +712,19 @@ class _HomePageState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF37A3E0),
-        unselectedItemColor: const Color(0xFF484848),
-        onTap: (index) => onItemTapped(context, index, (int idx) {
-          setState(() {
-            _selectedIndex = idx;
-          });
-        }),
-        currentIndex: _selectedIndex,
-        items: bottomNavigationBarItems(context, _selectedIndex, (int idx) {
-          setState(() {
-            _selectedIndex = idx;
-          });
-        }),
-      ),
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF37A3E0),
+            unselectedItemColor: const Color(0xFF484848),
+            onTap: navigationController.changeIndex,
+            currentIndex: navigationController.selectedIndex.value,
+            items: bottomNavigationBarItems(
+              context,
+              navigationController.selectedIndex.value,
+              navigationController.changeIndex,
+            ),
+          )),
     );
   }
 }

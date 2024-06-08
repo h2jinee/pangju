@@ -4,17 +4,21 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:pangju/screens/service/api_service.dart';
+import 'package:pangju/controller/navigation_controller.dart';
+import 'package:pangju/widgets/bottom_navigation_bar.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
 
   @override
-  _LocationScreenState createState() => _LocationScreenState();
+  LocationScreenState createState() => LocationScreenState();
 }
 
-class _LocationScreenState extends State<LocationScreen> {
+class LocationScreenState extends State<LocationScreen> {
   final Completer<NaverMapController> mapControllerCompleter = Completer();
+  final NavigationController navigationController = Get.find();
   bool _isMapSdkInitialized = false;
   double _currentChildSize = 0.1;
 
@@ -143,6 +147,19 @@ class _LocationScreenState extends State<LocationScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF37A3E0),
+            unselectedItemColor: const Color(0xFF484848),
+            currentIndex: navigationController.selectedIndex.value,
+            onTap: navigationController.changeIndex,
+            items: bottomNavigationBarItems(
+              context,
+              navigationController.selectedIndex.value,
+              navigationController.changeIndex,
+            ),
+          )),
     );
   }
 }
