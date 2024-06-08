@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pangju/screens/home/home_screen.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
-import '../home/home_screen.dart';
 
 void showCancelDialog(BuildContext context) {
   showDialog(
@@ -53,8 +53,7 @@ void showLoadDraftDialog(BuildContext context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      const WriteFirstScreen(), // 또는 WriteSecondScreen, 상황에 따라
+                  builder: (context) => const WriteFirstScreen(),
                 ),
               );
             },

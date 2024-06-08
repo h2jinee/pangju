@@ -1,11 +1,13 @@
-import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 import 'package:pangju/widgets/bottom_navigation_bar.dart';
-import 'package:pangju/screens/utils/utils.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
+import 'package:pangju/screens/service/api_service.dart';
+import 'package:pangju/widgets/category_constants.dart';
+import 'package:pangju/widgets/category_box.dart';
+import 'package:pangju/widgets/category_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,9 +24,9 @@ class _HomePageState extends State<HomeScreen> {
   int _currentPage = 1;
   final int _itemsPerPage = 15;
   int _selectedCategoryIndex = 0;
-  int _selectedIndex = 0; // 하단 네비게이션 바 선택 인덱스
-  bool _showNotificationBox = true; // 재난 문자 박스
-  bool _hasMoreItems = true; // API paging을 위함
+  int _selectedIndex = 0;
+  bool _showNotificationBox = true;
+  bool _hasMoreItems = true;
 
   @override
   void initState() {
@@ -48,53 +50,26 @@ class _HomePageState extends State<HomeScreen> {
     });
 
     try {
-      // 사용자 이름과 비밀번호를 Base64로 인코딩
-      String username = 'user'; // 기본 사용자 이름
-      String password =
-          '1f967faa-052a-445d-accb-faa26c424b3e'; // Postman에서 사용한 비밀번호
-      String basicAuth =
-          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
-
-      final response = await http.get(
-        Uri.parse(
-            'http://10.0.2.2:8081/api/items?page=$_currentPage&size=$_itemsPerPage'), // 페이지 번호 및 사이즈 추가
-        headers: {
-          'Authorization': basicAuth, // 인증 헤더 추가
-        },
-      );
-
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        List<Map<String, dynamic>> newItems =
-            List<Map<String, dynamic>>.from(json.decode(response.body));
-        if (newItems.isEmpty) {
-          if (mounted) {
-            // mounted 속성 추가
-            setState(() {
-              _hasMoreItems = false; // 더 이상 아이템이 없음을 표시
-              _isLoading = false;
-            });
-          }
-          return; // 더 이상 데이터를 가져오지 않도록 반환
-        }
+      List<Map<String, dynamic>> newItems =
+          await ApiService.fetchItems(_currentPage, _itemsPerPage);
+      if (newItems.isEmpty) {
         if (mounted) {
-          // mounted 속성 추가
           setState(() {
-            _items.addAll(newItems); // 중복 체크를 제거하고 데이터 추가
+            _hasMoreItems = false;
             _isLoading = false;
-            _currentPage++; // 페이지 번호 증가
           });
         }
-      } else {
-        print('Failed to load items with status: ${response.statusCode}');
-        throw Exception('Failed to load items');
+        return;
+      }
+      if (mounted) {
+        setState(() {
+          _items.addAll(newItems);
+          _isLoading = false;
+          _currentPage++;
+        });
       }
     } catch (e) {
-      print('Error: $e');
       if (mounted) {
-        // mounted 속성 추가
         setState(() {
           _isLoading = false;
         });
@@ -103,7 +78,7 @@ class _HomePageState extends State<HomeScreen> {
   }
 
   void _loadMoreItems() {
-    if (_isLoading || !_hasMoreItems) return; // 수정된 부분
+    if (_isLoading || !_hasMoreItems) return;
 
     _fetchItems();
   }
@@ -120,10 +95,9 @@ class _HomePageState extends State<HomeScreen> {
       _selectedCategoryIndex = index;
     });
 
-    // 최신순(0)이나 댓글순(3) 선택 시에만 스크롤 애니메이션
     if (index == 0 || index == 3) {
       _categoryScrollController.animateTo(
-        index * 100.0, // 임의의 값, 각 아이템의 넓이로 조정 필요
+        index * 100.0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -165,7 +139,7 @@ class _HomePageState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F6FD), // 배경 색상 설정
+      backgroundColor: const Color(0xFFE3F6FD),
       body: SafeArea(
         child: Stack(
           children: [
@@ -173,7 +147,6 @@ class _HomePageState extends State<HomeScreen> {
               controller: _scrollController,
               child: Column(
                 children: [
-                  // 로고 및 소개 텍스트
                   Padding(
                     padding: const EdgeInsets.only(right: 0, top: 30),
                     child: Stack(
@@ -192,7 +165,7 @@ class _HomePageState extends State<HomeScreen> {
                                       'assets/images/main_logo.png',
                                       width: 52,
                                       fit: BoxFit.contain,
-                                    ), // 로고 이미지
+                                    ),
                                     const SizedBox(height: 40),
                                     const Text(
                                       '팡쥬에서 보고 싶었던\n사람을 찾아보세요.',
@@ -214,7 +187,7 @@ class _HomePageState extends State<HomeScreen> {
                                   alignment: Alignment.centerRight,
                                   child: Image.asset(
                                     'assets/images/main_character.png',
-                                    width: 140, // 주요 캐릭터 이미지
+                                    width: 140,
                                   ),
                                 ),
                               ),
@@ -233,9 +206,7 @@ class _HomePageState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ), // 간격 조정
+                  const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -248,7 +219,7 @@ class _HomePageState extends State<HomeScreen> {
                           color: const Color(0xFFC6C6C6).withOpacity(0.1),
                           spreadRadius: 1,
                           blurRadius: 1,
-                          offset: const Offset(0, 0), // 상단 그림자
+                          offset: const Offset(0, 0),
                         ),
                       ],
                     ),
@@ -263,33 +234,32 @@ class _HomePageState extends State<HomeScreen> {
                                 imagePath: 'assets/images/icons/all.png',
                                 label: '전체',
                                 onTap: () {
-                                  print('전체 카테고리가 선택되었습니다.');
+                                  log('전체 카테고리가 선택되었습니다.');
                                 },
                               ),
                               CategoryButton(
                                 imagePath: 'assets/images/icons/online.png',
                                 label: '온라인',
                                 onTap: () {
-                                  print('온라인 카테고리가 선택되었습니다.');
+                                  log('온라인 카테고리가 선택되었습니다.');
                                 },
                               ),
                               CategoryButton(
                                 imagePath: 'assets/images/icons/offline.png',
                                 label: '오프라인',
                                 onTap: () {
-                                  print('오프라인 카테고리가 선택되었습니다.');
+                                  log('오프라인 카테고리가 선택되었습니다.');
                                 },
                               ),
                               CategoryButton(
                                 imagePath: 'assets/images/icons/missing.png',
                                 label: '실종·분실',
                                 onTap: () {
-                                  print('실종·분실 카테고리가 선택되었습니다.');
+                                  log('실종·분실 카테고리가 선택되었습니다.');
                                 },
                               ),
                             ],
                           ),
-                          // 새로운 박스 추가 부분
                           if (_showNotificationBox)
                             Container(
                               width: 350,
@@ -331,9 +301,8 @@ class _HomePageState extends State<HomeScreen> {
                                           width: 24,
                                           height: 24,
                                           decoration: const BoxDecoration(
-                                            color: Color(
-                                                0x80262626), // 투명도 50% 추가된 색상
-                                            shape: BoxShape.circle, // 동그라미 모양
+                                            color: Color(0x80262626),
+                                            shape: BoxShape.circle,
                                           ),
                                           child: Center(
                                             child: SvgPicture.asset(
@@ -367,8 +336,6 @@ class _HomePageState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-
-                  // 인기 글
                   Container(
                     height: 330,
                     color: const Color(0xFFF6F6F6),
@@ -376,10 +343,7 @@ class _HomePageState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Padding(
-                          padding: EdgeInsets.only(
-                            left: 25,
-                            top: 20,
-                          ),
+                          padding: EdgeInsets.only(left: 25, top: 20),
                           child: Text(
                             '인기 글',
                             style: TextStyle(
@@ -397,11 +361,8 @@ class _HomePageState extends State<HomeScreen> {
                               return Container(
                                 width: 255,
                                 margin: EdgeInsets.only(
-                                  left: index == 0
-                                      ? 25
-                                      : 15, // 첫 번째 아이템에는 왼쪽 패딩 유지
-                                  right:
-                                      index == 9 ? 25 : 0, // 마지막 아이템에 오른쪽 패딩 추가
+                                  left: index == 0 ? 25 : 15,
+                                  right: index == 9 ? 25 : 0,
                                   top: 20,
                                 ),
                                 decoration: BoxDecoration(
@@ -428,17 +389,17 @@ class _HomePageState extends State<HomeScreen> {
                                           vertical: 3,
                                         ),
                                         decoration: BoxDecoration(
-                                          color:
-                                              const Color(0xFFFEE4EB), // 박스 색상
+                                          color: const Color(0xFFFEE4EB),
                                           borderRadius:
                                               BorderRadius.circular(2),
                                         ),
                                         child: const Text(
                                           '온라인',
                                           style: TextStyle(
-                                              color: Color(0xFFF14074), // 글씨 색상
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500),
+                                            color: Color(0xFFF14074),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                       const Padding(
@@ -479,11 +440,9 @@ class _HomePageState extends State<HomeScreen> {
                                               style: TextStyle(
                                                 color: Color(0xFFA5A5A5),
                                               ),
-                                            ), // 실제 카운트 값으로 대체
+                                            ),
                                           ),
-                                          const SizedBox(
-                                            width: 15,
-                                          ), // 아이콘과 카운트 사이 여백
+                                          const SizedBox(width: 15),
                                           SvgPicture.asset(
                                             'assets/images/icons/chat.svg',
                                             width: 24,
@@ -500,7 +459,7 @@ class _HomePageState extends State<HomeScreen> {
                                               style: TextStyle(
                                                 color: Color(0xFFA5A5A5),
                                               ),
-                                            ), // 실제 카운트 값으로 대체
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -514,10 +473,8 @@ class _HomePageState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-
-                  // 여백 줄임
                   Padding(
-                    padding: const EdgeInsets.only(top: 0), // 여백 줄임
+                    padding: const EdgeInsets.only(top: 0),
                     child: Container(
                       color: Colors.white,
                       child: SizedBox(
@@ -525,44 +482,10 @@ class _HomePageState extends State<HomeScreen> {
                         child: ListView.builder(
                           controller: _categoryScrollController,
                           scrollDirection: Axis.horizontal,
-                          itemCount: 4, // CategoryBox 갯수
+                          itemCount: categoryData.length,
                           itemBuilder: (context, index) {
-                            // 각 CategoryBox에 대한 데이터를 리스트로 저장
-                            final categoryData = [
-                              {
-                                'iconPath': 'assets/images/icons/clock.svg',
-                                'text': '최신순',
-                                'backgroundColor': const Color(0xFF37A3E0),
-                                'textColor': Colors.white,
-                                'isSelected': true,
-                              },
-                              {
-                                'iconPath': 'assets/images/icons/place.svg',
-                                'text': '내근처',
-                                'backgroundColor': Colors.white,
-                                'textColor': const Color(0xFF484848),
-                                'isSelected': false,
-                              },
-                              {
-                                'iconPath': 'assets/images/icons/heart.svg',
-                                'text': '공감순',
-                                'backgroundColor': Colors.white,
-                                'textColor': const Color(0xFF484848),
-                                'isSelected': false,
-                              },
-                              {
-                                'iconPath': 'assets/images/icons/chat.svg',
-                                'text': '댓글순',
-                                'backgroundColor': Colors.white,
-                                'textColor': const Color(0xFF484848),
-                                'isSelected': false,
-                              },
-                            ];
-
-                            // 선택된 상태에 따라 배경 색상과 텍스트 색상을 업데이트
                             bool isSelected = _selectedCategoryIndex == index;
 
-                            // 인덱스와 함께 CategoryBox 생성
                             return GestureDetector(
                               onTap: () => _onCategoryTap(index),
                               child: CategoryBox(
@@ -699,11 +622,9 @@ class _HomePageState extends State<HomeScreen> {
                                                 style: const TextStyle(
                                                   color: Color(0xFFA5A5A5),
                                                 ),
-                                              ), // 실제 카운트 값으로 대체
+                                              ),
                                             ),
-                                            const SizedBox(
-                                              width: 15,
-                                            ), // 아이콘과 카운트 사이 여백
+                                            const SizedBox(width: 15),
                                             SvgPicture.asset(
                                               'assets/images/icons/chat.svg',
                                               width: 24,
@@ -722,7 +643,7 @@ class _HomePageState extends State<HomeScreen> {
                                                 style: const TextStyle(
                                                   color: Color(0xFFA5A5A5),
                                                 ),
-                                              ), // 실제 카운트 값으로 대체
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -745,7 +666,7 @@ class _HomePageState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            if (index != _items.length - 1) // 마지막 인덱스가 아니면
+                            if (index != _items.length - 1)
                               Center(
                                 child: Container(
                                   height: 1,
@@ -762,8 +683,8 @@ class _HomePageState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              bottom: 15, // 하단 바보다 살짝 위로
-              right: 20, // 오른쪽에 배치
+              bottom: 15,
+              right: 20,
               child: FloatingActionButton(
                 onPressed: () {
                   Navigator.push(
@@ -771,18 +692,6 @@ class _HomePageState extends State<HomeScreen> {
                     MaterialPageRoute(
                         builder: (context) => const WriteFirstScreen()),
                   );
-                  // TODO : 임시저장된 데이터가 있으면 불러오기
-                  /*
-                  if (true) {
-                    showLoadDraftDialog(context);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const WriteFirstScreen()),
-                    );
-                  }
-                  */
                 },
                 backgroundColor: const Color(0xFF37A3E0),
                 shape: const CircleBorder(),
@@ -818,129 +727,6 @@ class _HomePageState extends State<HomeScreen> {
           });
         }),
       ),
-    );
-  }
-}
-
-class CategoryBox extends StatelessWidget {
-  final String iconPath;
-  final String text;
-  final Color backgroundColor;
-  final Color textColor;
-  final bool isSelected;
-  final int index;
-
-  const CategoryBox({
-    super.key,
-    required this.iconPath,
-    required this.text,
-    required this.backgroundColor,
-    required this.textColor,
-    required this.isSelected,
-    required this.index,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 25,
-        left: index == 0 ? 25 : 8, // 첫 번째 아이템에는 왼쪽 패딩 유지
-        right: index == 3 ? 10 : 0, // 마지막 아이템에 오른쪽 패딩 추가
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(50),
-          border: isSelected
-              ? null
-              : Border.all(
-                  color: const Color(0xFFE5E5E5),
-                  width: 1,
-                ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 8),
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                iconPath,
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(
-                  textColor,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 3),
-              Text(
-                text,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CategoryButton extends StatelessWidget {
-  final String imagePath;
-  final String label;
-  final VoidCallback onTap; // 클릭 이벤트 핸들러
-
-  const CategoryButton({
-    super.key,
-    required this.imagePath,
-    required this.label,
-    required this.onTap, // onTap 매개변수 추가
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          onTap: onTap, // InkWell에 onTap 이벤트 연결
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Image.asset(
-                imagePath,
-                width: 40, // 이미지 너비 조절
-                fit: BoxFit.scaleDown, // 비율 유지하며 크기 조절
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8), // 이미지와 텍스트 사이의 여백
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 14, // 글자 크기 조정
-          ),
-        ),
-      ],
     );
   }
 }

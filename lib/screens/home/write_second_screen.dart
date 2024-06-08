@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pangju/screens/utils/utils.dart';
+import 'package:pangju/utils/utils.dart';
 
 import '../../widgets/write_bottom_bar.dart';
 import 'load_image_screen.dart';

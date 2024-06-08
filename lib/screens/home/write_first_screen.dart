@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:pangju/screens/utils/utils.dart';
+import 'package:pangju/utils/utils.dart';
 
 import '../../widgets/write_bottom_bar.dart'; // 새로운 BottomBar 위젯을 임포트
 import 'write_second_screen.dart'; // 새로 만든 두 번째 화면 임포트
