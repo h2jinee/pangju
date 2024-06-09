@@ -2,14 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:pangju/widgets/bottom_navigation_bar.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 import 'package:pangju/screens/service/api_service.dart';
 import 'package:pangju/widgets/category_constants.dart';
 import 'package:pangju/widgets/category_box.dart';
 import 'package:pangju/widgets/category_button.dart';
-import 'package:pangju/controller/navigation_controller.dart';
+import 'package:pangju/widgets/item_list_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +20,6 @@ class _HomePageState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final List<Map<String, dynamic>> _items = [];
-  final NavigationController navigationController = Get.find();
   bool _isLoading = false;
   int _currentPage = 1;
   final int _itemsPerPage = 15;
@@ -112,32 +109,6 @@ class _HomePageState extends State<HomeScreen> {
     });
   }
 
-  Color _getMainCategoryBackgroundColor(String mainCategory) {
-    switch (mainCategory) {
-      case '오프라인':
-        return const Color(0xFFE6F6EB);
-      case '온라인':
-        return const Color(0xFFFEE4EB);
-      case '분실·신고':
-        return const Color(0xFFFBE8E5);
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getMainCategoryTextColor(String mainCategory) {
-    switch (mainCategory) {
-      case '오프라인':
-        return const Color(0xFF17944B);
-      case '온라인':
-        return const Color(0xFFF14074);
-      case '분실·신고':
-        return const Color(0xFFEF470A);
-      default:
-        return Colors.black;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,13 +140,16 @@ class _HomePageState extends State<HomeScreen> {
                                       fit: BoxFit.contain,
                                     ),
                                     const SizedBox(height: 40),
-                                    const Text(
+                                    Text(
                                       '팡쥬에서 보고 싶었던\n사람을 찾아보세요.',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 20,
-                                        color: Color(0xFF3090CC),
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 20,
+                                            color: const Color(0xFF3090CC),
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -350,7 +324,7 @@ class _HomePageState extends State<HomeScreen> {
                             '인기 글',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              fontSize: 22,
+                              fontSize: 18,
                             ),
                           ),
                         ),
@@ -518,166 +492,7 @@ class _HomePageState extends State<HomeScreen> {
                       itemCount: _items.length,
                       itemBuilder: (context, index) {
                         final item = _items[index];
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 23,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 3,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _getMainCategoryBackgroundColor(
-                                                        item['mainCategory']),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                              child: Text(
-                                                item['mainCategory'],
-                                                style: TextStyle(
-                                                  color:
-                                                      _getMainCategoryTextColor(
-                                                          item['mainCategory']),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 3,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFF6F6F6),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                              child: Text(
-                                                item['status'],
-                                                style: const TextStyle(
-                                                  color: Color(0xFF484848),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          child: Text(
-                                            item['content'],
-                                            style: const TextStyle(
-                                              color: Color(0xFF262626),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          item['description'],
-                                          style: const TextStyle(
-                                            color: Color(0xFF7B7B7B),
-                                            fontSize: 16,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            SvgPicture.asset(
-                                              'assets/images/icons/heart.svg',
-                                              width: 24,
-                                              height: 24,
-                                              colorFilter:
-                                                  const ColorFilter.mode(
-                                                Color(0xFFA5A5A5),
-                                                BlendMode.srcIn,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 3),
-                                              child: Text(
-                                                '${item['heartCount']}',
-                                                style: const TextStyle(
-                                                  color: Color(0xFFA5A5A5),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 15),
-                                            SvgPicture.asset(
-                                              'assets/images/icons/chat.svg',
-                                              width: 24,
-                                              height: 24,
-                                              colorFilter:
-                                                  const ColorFilter.mode(
-                                                Color(0xFFA5A5A5),
-                                                BlendMode.srcIn,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 3),
-                                              child: Text(
-                                                '${item['chatCount']}',
-                                                style: const TextStyle(
-                                                  color: Color(0xFFA5A5A5),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (item['image'] != null)
-                                    Container(
-                                      width: 80,
-                                      height: 80,
-                                      margin: const EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: DecorationImage(
-                                          image: AssetImage(item['image']),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (index != _items.length - 1)
-                              Center(
-                                child: Container(
-                                  height: 1,
-                                  width: 350,
-                                  color: const Color(0xFFE5E5E5),
-                                ),
-                              ),
-                          ],
-                        );
+                        return ItemListTile(item: item);
                       },
                     ),
                   ),
@@ -712,19 +527,6 @@ class _HomePageState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Obx(() => BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            selectedItemColor: const Color(0xFF37A3E0),
-            unselectedItemColor: const Color(0xFF484848),
-            onTap: navigationController.changeIndex,
-            currentIndex: navigationController.selectedIndex.value,
-            items: bottomNavigationBarItems(
-              context,
-              navigationController.selectedIndex.value,
-              navigationController.changeIndex,
-            ),
-          )),
     );
   }
 }

@@ -51,6 +51,7 @@ pangju
 │  │  │  ├─ 8c9a1f49d1263b9c4c0a50a87ef6355c7611ee
 │  │  │  └─ df56a26aed4dd178344eaa965fabbd2420f7ca
 │  │  ├─ 06
+│  │  │  ├─ 167694b3f7d746db166cdfd2429781ec758b9b
 │  │  │  ├─ 72f48ce96c63af23abc9c67cfa78cd509e284c
 │  │  │  ├─ 9c9c64142a83dbac93d6b1cb98dc32a5bd0ad6
 │  │  │  └─ f83fe98bf265c879aebe0b8967419214750a5a
@@ -61,6 +62,8 @@ pangju
 │  │  ├─ 09
 │  │  │  ├─ 2f68611ae360bdea46e5f08e983f713f1d0b61
 │  │  │  └─ ce957eaa4cac536b2c163a989db43a33c7d103
+│  │  ├─ 0b
+│  │  │  └─ 7c660accfcff8ca00dcd5c34af39b60aa66a1a
 │  │  ├─ 0c
 │  │  │  ├─ 32e181eb40aaafc9c5861a58722b805bc258d1
 │  │  │  ├─ 4c1560bec67c58212a652b20b6e168fd9708bd
@@ -83,10 +86,15 @@ pangju
 │  │  ├─ 15
 │  │  │  ├─ 3733a193ae773bce8d907d4fc537e28245512e
 │  │  │  └─ 9ff5a5cafa1f6dda121cb180de1207af2fd30f
+│  │  ├─ 17
+│  │  │  └─ de243bfa42608d3b18134810c41365eb34732f
 │  │  ├─ 19
 │  │  │  ├─ 05ae89f447a6af94478150dc43bbe192d3a61d
 │  │  │  ├─ 267c145998a1576a58041cce4e47d464a52ecd
 │  │  │  └─ 97dca8eb28d6bb94416d0b7536a2bd62103471
+│  │  ├─ 1b
+│  │  │  ├─ d413ee4f1ac7cb0cd18c19397afa748921fa62
+│  │  │  └─ dc399e49c856b01441ad09c3e15878d3db2eb5
 │  │  ├─ 1d
 │  │  │  ├─ 02790bdf799028ff522b8fa4df08b915261c8a
 │  │  │  └─ e67d7138a5cf4371918e0622d2765961dc6e99
@@ -96,15 +104,20 @@ pangju
 │  │  │  ├─ 9b23a6e59d4a21b4dcab87b272bb7005b42531
 │  │  │  └─ ecb09c647de47c9aa524e18c5ae223f48f84ab
 │  │  ├─ 21
+│  │  │  ├─ 3a1d2d75e107658ee3097ea424fe564dda67a8
 │  │  │  └─ aeeb278ccc09d7ffff5368d235c26df6b463f4
 │  │  ├─ 22
 │  │  │  └─ 4b405c0a7898329a38ac876d7ad8ddb9759466
 │  │  ├─ 23
 │  │  │  └─ 72a37fae84d6a48a06e2d69f7a85449790a1f5
+│  │  ├─ 24
+│  │  │  └─ a5d021bc96386283beed62010eaca4c5659b8e
 │  │  ├─ 25
 │  │  │  └─ 21e7ae632b054b30fd4c9095cbba638a513060
 │  │  ├─ 27
 │  │  │  └─ 974b280311e25540c5b02fcf15dced485f3d69
+│  │  ├─ 28
+│  │  │  └─ 0da0de3363b3c02678a38662d8f9f2a2faeb8e
 │  │  ├─ 29
 │  │  │  ├─ 233f268ebf6fcd78ec8db2d9b10e58ae1a6956
 │  │  │  ├─ 480d22a36a05bea747906bbc885666b7aa5aec
@@ -116,6 +129,7 @@ pangju
 │  │  │  ├─ 4c2a5c922ba0e6b1f06e707966a6f78786a160
 │  │  │  └─ b3c22ae2281f57cb3ccd2ec6dfd408fbcaa8b2
 │  │  ├─ 2e
+│  │  │  ├─ 244f05331f1f54af9624a677d9ed1db5a426d8
 │  │  │  └─ a778fdc05872859e36b570a3d4fc0698f66ffb
 │  │  ├─ 2f
 │  │  │  └─ f0832f3797d2ad679ea5c78150f5c37902caa7
@@ -139,14 +153,21 @@ pangju
 │  │  │  ├─ 45ea4723d604ffa5f8cec081077393905c03e4
 │  │  │  └─ 461a9f4c3786aab39cbb0bf2284c13e9cfe5ac
 │  │  ├─ 3c
-│  │  │  └─ 6a3a888d3424e84b7602f0da9f0f89c0abb10f
+│  │  │  ├─ 6a3a888d3424e84b7602f0da9f0f89c0abb10f
+│  │  │  ├─ ccda45d51e2a73032296a8ab2c6bc0162317c1
+│  │  │  └─ f91e4c0d4b9fb0997223f5bb81bece93416c41
 │  │  ├─ 3d
 │  │  │  ├─ 120c292b1478e9b1fbaee00de8b47bcedb6a47
 │  │  │  └─ c9f349c536555f0d4e4132d15c64010bed03d8
 │  │  ├─ 3e
+│  │  │  ├─ 64a3c933b1bc0b7af7b3589776e4aa80530e7f
 │  │  │  ├─ 64a9b6800d92066fc3caa0fe690dffcec5155f
 │  │  │  ├─ c53c1e389763c14616017d5e137afc86663256
 │  │  │  └─ f245b114025c61e87d01c1c08278ddf8d3772d
+│  │  ├─ 41
+│  │  │  └─ deac233011a45cc3ace54975e1ff6078cfb803
+│  │  ├─ 42
+│  │  │  └─ a99f194ab78c35c18a2ac239efb8a61f627fb9
 │  │  ├─ 43
 │  │  │  └─ d467964e7cc780ff212198d52f42e431619102
 │  │  ├─ 44
@@ -190,12 +211,14 @@ pangju
 │  │  │  ├─ 3bdb05a2a8e884de65524cc5c84760b47a3206
 │  │  │  └─ acba954fe7b47146190581604fd76af4e15b83
 │  │  ├─ 5d
+│  │  │  ├─ 16323980cdc104f40e1c7f1f22b63fc5338518
 │  │  │  ├─ 9160fc8611e5d12852e1e6c96d1c1957ecd1ef
 │  │  │  └─ af57188da3e3c7e06726507c58d93e622a63c3
 │  │  ├─ 5e
 │  │  │  └─ aa2ca3a22837bca906d62522f7a9233e882dca
 │  │  ├─ 5f
-│  │  │  └─ 7cb8af73a69133df101842651e2b13be51c336
+│  │  │  ├─ 7cb8af73a69133df101842651e2b13be51c336
+│  │  │  └─ 9ffeb17649bf584c97aadfaa17125e20547760
 │  │  ├─ 60
 │  │  │  └─ 771ac1b0fef35b4805f6a2708959a73f65c1e9
 │  │  ├─ 62
@@ -204,22 +227,29 @@ pangju
 │  │  │  └─ 061d327fa3f4b7c5b4528a04c124d20f28aa25
 │  │  ├─ 64
 │  │  │  └─ a0ecea40dc5300640959f69629a6276d3b6931
+│  │  ├─ 65
+│  │  │  ├─ 1a5af4be5338f17e485a2f4e4846c948b18b07
+│  │  │  └─ a2275b7744e0c68bd1b1481d2228715b952339
 │  │  ├─ 66
 │  │  │  └─ c9d5ebb769d636ac1280417868aaf9bb1aaf63
 │  │  ├─ 69
 │  │  │  ├─ 4ffb69e88df3f833eea881ad3306d373900e60
+│  │  │  ├─ 92f0bb54e73ea708926cb28baa6744172c72ae
 │  │  │  └─ d84808f28ac0aab9d740816e6914b8698b17ac
 │  │  ├─ 6a
 │  │  │  ├─ 0b2edb93df690efb2c12c57d635acde190b154
+│  │  │  ├─ 477c60b0038f8af10c311770b518c56b617c9e
 │  │  │  └─ dae039345a9e2a5c834ca5640b11179c6f9b63
 │  │  ├─ 6b
 │  │  │  ├─ ba2f5043973346616aaa8de52610198b214d89
 │  │  │  └─ ce67d691eb2c4ccd6cbd74cbeb43520caf48ad
 │  │  ├─ 6c
+│  │  │  ├─ 25e01160068ddf39b6a64404b01538fb19c157
 │  │  │  ├─ 48c12659975e72ceee80544350d0702f3dd03f
 │  │  │  └─ 9c559b3010d343ab392fbbb9113511491138b1
 │  │  ├─ 6e
 │  │  │  ├─ 084f001c24920e9d60272a45e6d45ef3a8a165
+│  │  │  ├─ 11ef9e8f3f68951fc3c6b32274afa26ff3048c
 │  │  │  └─ d934ac8e89ce88506b96d5d7b061bb44440892
 │  │  ├─ 6f
 │  │  │  └─ 951707f66ce381ffd723751a03ec70b2f8b2d7
@@ -230,11 +260,13 @@ pangju
 │  │  ├─ 73
 │  │  │  └─ c1333b33e7705a4f2176ffbc0be6e7be03522e
 │  │  ├─ 74
+│  │  │  ├─ 6b3a309527a50f8b816b859707d9e5f2860fa0
 │  │  │  └─ b64927ec420a70754f58726e05810861be727a
 │  │  ├─ 75
 │  │  │  └─ 9fd6ac195c9ff1a7a2a0f917733e67cc519de9
 │  │  ├─ 76
-│  │  │  └─ ba66f251a3ca705103eb1c86ad15b5e2a27487
+│  │  │  ├─ ba66f251a3ca705103eb1c86ad15b5e2a27487
+│  │  │  └─ f97c6ae398083a5a0b1287011252fade49a2b4
 │  │  ├─ 77
 │  │  │  └─ ab7a09ab661056e3b5d6de85afe973987e4b2f
 │  │  ├─ 78
@@ -245,6 +277,7 @@ pangju
 │  │  │  ├─ 0390cdb0c7fdf38031dc81cef4e806787aca06
 │  │  │  └─ f3f35730214ff5b0430d8cf397d4d8a7ef56e1
 │  │  ├─ 7c
+│  │  │  ├─ 70108e3e3a3dc70ca91f25a746b50886f764df
 │  │  │  └─ 93652320c5a7c2d165a2ee7c96b9e19bf55aa5
 │  │  ├─ 7e
 │  │  │  ├─ 1147ac7dcad4b085a5767206a9659e904e12c8
@@ -284,7 +317,8 @@ pangju
 │  │  ├─ 99
 │  │  │  └─ a76d15534f5582d5916fc8bfcef369ce2a5d81
 │  │  ├─ 9a
-│  │  │  └─ 27f503b6c1fdfea2fe6091c7e02fe477b0ec8e
+│  │  │  ├─ 27f503b6c1fdfea2fe6091c7e02fe477b0ec8e
+│  │  │  └─ dc826574b2f9e6c8e98d7a1b97f19e08c8db6d
 │  │  ├─ 9b
 │  │  │  ├─ 3284be7cb474b9df59a9e152a5f2adbf1657a2
 │  │  │  └─ d25fc6e0dc144cc25173a071a23c0c6a3235c9
@@ -293,7 +327,8 @@ pangju
 │  │  ├─ 9e
 │  │  │  └─ f65ad3f437fd399522d037673492293549bf76
 │  │  ├─ 9f
-│  │  │  └─ 122c318856c56639049c2cc2c8494e8ead302b
+│  │  │  ├─ 122c318856c56639049c2cc2c8494e8ead302b
+│  │  │  └─ 6e3cdb91c6129051fe1a73544e331bcabdf506
 │  │  ├─ a1
 │  │  │  ├─ 187adcaf58a2f004c122422721697e6beae1fa
 │  │  │  ├─ 31cb83f1abab96c5b9254bec751b671cb768ac
@@ -301,7 +336,9 @@ pangju
 │  │  │  ├─ bb0791655e3210c50dd8e356bd73b1e15f4943
 │  │  │  └─ d94e5191b6cf989a48822687311500489874df
 │  │  ├─ a3
-│  │  │  └─ 2f009d0befc8b270385291bab9ca8bddc5b150
+│  │  │  ├─ 2f009d0befc8b270385291bab9ca8bddc5b150
+│  │  │  ├─ b76cbddb1e11178c5cbeb3a669f45a64bb7984
+│  │  │  └─ f226b43d5d4d5491967ca55f236f4e7b11f045
 │  │  ├─ a4
 │  │  │  ├─ 23a02476a243a87183aa9cfde50aef0bf03e9b
 │  │  │  └─ c484870cfe0d7395147173b395c1ebff2bb175
@@ -311,17 +348,24 @@ pangju
 │  │  │  ├─ 156f13f3c1d5e7b6babd7ea64bf27eae4579ce
 │  │  │  ├─ 79cb83f1a96d2f7638d55ccc351d743a8a5b38
 │  │  │  └─ c67c8e4b32732e62c4b5e83cefd9b728e4990e
+│  │  ├─ aa
+│  │  │  └─ af6325537f0dc4437a9e6e9300da669026b200
 │  │  ├─ ae
 │  │  │  ├─ 5ce0a37fc44f4fabfd35e4d58f9f55790cabb8
 │  │  │  ├─ 93129a12f0d16f78dc7b51a67c82d04d9e006b
 │  │  │  ├─ d68b762894fbf46af828ea37b9c9efd5cefb77
 │  │  │  └─ f52d73604da9796a1ee8eae6e93642a81aa8fe
+│  │  ├─ b1
+│  │  │  └─ 88bbe1dde913357b52376734730cccad58ae0e
 │  │  ├─ b2
 │  │  │  └─ 3b96e681be15dd8edd556a33c24a375d020ffd
 │  │  ├─ b3
 │  │  │  ├─ 54a29b9a014b798aa9556b160a93b4aa41ffcb
 │  │  │  └─ 59a59ab3d19cbcbd26775b00d799831ea6e14d
+│  │  ├─ b4
+│  │  │  └─ 92edea792f925b46bd0209447b6aabe694ea7d
 │  │  ├─ b5
+│  │  │  ├─ 5cf293619456610c3412ad61021c02159a65df
 │  │  │  └─ ef1c44cc2cc8c0dc193b13bd8d83699823d027
 │  │  ├─ b7
 │  │  │  └─ 573ce5dedc4f6e50dedd86a21058904351c846
@@ -345,6 +389,7 @@ pangju
 │  │  │  ├─ 2c1b81154d8447a6bade59dcc60c4079065856
 │  │  │  └─ 611723118c319ec6f1eacc9aea8ddf1fe09761
 │  │  ├─ c3
+│  │  │  ├─ 3203334b2d44d8fa4e3541c848df3626df6848
 │  │  │  └─ efa54c48fac4f9aea937e0674cf3f177cafcb0
 │  │  ├─ c4
 │  │  │  └─ 4bf10b959169613e39b037ce22c587accda2f0
@@ -364,6 +409,8 @@ pangju
 │  │  │  └─ f3836b32e4c000dbe63658809f9a767bb4b607
 │  │  ├─ cc
 │  │  │  └─ f2abc648d82b0bdd30d2b8a0258ffe1cc8e8cb
+│  │  ├─ cd
+│  │  │  └─ 1aba3ed68ed1fb3c99edda90070aa943628f91
 │  │  ├─ ce
 │  │  │  └─ 66d70e1d36b78e45ae091317808a5e37c5e5ce
 │  │  ├─ cf
@@ -378,13 +425,15 @@ pangju
 │  │  │  ├─ b8b1284d5b69abafcf920ea06273e9ba3be6e3
 │  │  │  └─ e3169ac0b0345c2f0854417f2a830c41af19a1
 │  │  ├─ d2
-│  │  │  └─ 851c881587da7ff02a36c22c31c7bf5c52d81a
+│  │  │  ├─ 851c881587da7ff02a36c22c31c7bf5c52d81a
+│  │  │  └─ e887f4f577bb47e989ae97f3e7a4bb797364cd
 │  │  ├─ d5
 │  │  │  ├─ 384cd108a8b2960d71ac00561cba4155cfef33
 │  │  │  ├─ 8293330bf3c9ac95ec205d9d6867e0f405eb9e
 │  │  │  ├─ 904d1203e84066e14081013aff25cbdf3b228c
 │  │  │  └─ cb1d31d3d132c6a6af71ce606319f27fdcd03e
 │  │  ├─ d6
+│  │  │  ├─ 0e8a5c0785431dc0a44a18f5b8ea94dc48b7a8
 │  │  │  └─ 415458e9ef0e546161af970bda058b5b27462e
 │  │  ├─ d7
 │  │  │  └─ e491b34795dc8343b1c8122b52600b0cfc4d7e
@@ -410,6 +459,8 @@ pangju
 │  │  │  └─ bb5f0cf02a023bd07da642fa6afe6501f69578
 │  │  ├─ e3
 │  │  │  └─ c1aca8e6a5eb2883cb53924deded3d53feb219
+│  │  ├─ e4
+│  │  │  └─ b104e031b60e2897044dafd054da979b601891
 │  │  ├─ e6
 │  │  │  ├─ 104db6472665822d23d4bcbfd34cd4797ea8dc
 │  │  │  └─ 4a2f1fdbbe84a9f6008a7c7c43debaec9ef1ab
@@ -432,10 +483,16 @@ pangju
 │  │  ├─ f0
 │  │  │  ├─ 6c19e1f10f8b69dae743f4156c38245a44ed93
 │  │  │  └─ a81e30cd59e5cfa9c51ef8d67c1c85b46b526c
+│  │  ├─ f2
+│  │  │  └─ 33c7eb298e26789ac8d3cf32b25320f29af0ce
 │  │  ├─ f3
+│  │  │  ├─ 263a7e9b46e74b3885e326c9cb81732687ebb7
 │  │  │  ├─ 952b601f82ac9e7eb7969d5279b7b1f73a50e9
 │  │  │  └─ ec79192f2ea291579901637afe2239570f67cf
+│  │  ├─ f4
+│  │  │  └─ be27486f0bdca45c6209d7c0edfeb6e456d75b
 │  │  ├─ f5
+│  │  │  ├─ 8507d177efbdc5b261f186b38876a30c8ab915
 │  │  │  └─ da812ce1ea2c1b030a8e7351bfad62216f0869
 │  │  ├─ f6
 │  │  │  ├─ a4cb3c1f5b1e4189f8994d34e85726eab6b23f
@@ -652,6 +709,8 @@ pangju
 │  └─ RunnerTests
 │     └─ RunnerTests.swift
 ├─ lib
+│  ├─ controller
+│  │  └─ navigation_controller.dart
 │  ├─ main.dart
 │  ├─ screens
 │  │  ├─ auth
@@ -673,9 +732,13 @@ pangju
 │  │  └─ service
 │  │     └─ api_service.dart
 │  ├─ utils
-│  │  └─ utils.dart
+│  │  ├─ dialogs.dart
+│  │  └─ list_styles.dart
 │  └─ widgets
-│     ├─ bottom_navigation_bar.dart
+│     ├─ category_box.dart
+│     ├─ category_button.dart
+│     ├─ category_constants.dart
+│     ├─ item_list_tile.dart
 │     └─ write_bottom_bar.dart
 ├─ linux
 │  ├─ .gitignore

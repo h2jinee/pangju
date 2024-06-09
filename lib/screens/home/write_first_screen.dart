@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:pangju/utils/utils.dart';
-
-import '../../widgets/write_bottom_bar.dart'; // 새로운 BottomBar 위젯을 임포트
-import 'write_second_screen.dart'; // 새로 만든 두 번째 화면 임포트
+import 'package:pangju/utils/dialogs.dart';
+import 'package:pangju/widgets/write_bottom_bar.dart';
+import 'write_second_screen.dart';
 
 class WriteFirstScreen extends StatefulWidget {
   const WriteFirstScreen({super.key});
 
   @override
-  _WriteFirstScreenState createState() => _WriteFirstScreenState();
+  WriteFirstScreenState createState() => WriteFirstScreenState();
 }
 
-class _WriteFirstScreenState extends State<WriteFirstScreen> {
+class WriteFirstScreenState extends State<WriteFirstScreen> {
   String? selectedCategory;
   Set<String> selectedSubcategories = {};
   String? selectedGender;
