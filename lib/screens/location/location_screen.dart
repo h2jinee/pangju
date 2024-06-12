@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
+
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:pangju/screens/service/api_service.dart';
 import 'package:pangju/controller/navigation_controller.dart';
+import 'package:pangju/screens/service/api_service.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -31,13 +35,114 @@ class LocationScreenState extends State<LocationScreen> {
   Key _draggableScrollableSheetKey = UniqueKey();
   final ScrollController _scrollController = ScrollController();
 
+  NLatLng? _initialPosition;
+  bool _isLocationInitialized = false;
+
   final List<String> _categories = ['전체', '온라인', '오프라인', '실종 · 분실'];
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 위치 서비스가 활성화되어 있는지 확인합니다.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // 위치 권한을 확인합니다.
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    if (mounted) {
+      setState(() {
+        _initialPosition = NLatLng(position.latitude, position.longitude);
+        _isLocationInitialized = true;
+      });
+    }
+
+    if (mapControllerCompleter.isCompleted) {
+      final controller = await mapControllerCompleter.future;
+      await controller.updateCamera(NCameraUpdate.withParams(
+        target: _initialPosition!,
+        zoom: 15,
+      ));
+
+      // 마커 추가
+      if (mounted) {
+        final customMarkerImage = await createCustomMarker();
+        final marker = NMarker(
+          id: 'currentLocation',
+          position: _initialPosition!,
+          icon: customMarkerImage,
+        );
+        await controller.clearOverlays();
+        await controller.addOverlay(marker);
+      }
+    }
+  }
+
+  // 커스텀 마커 이미지를 생성하는 함수
+  Future<NOverlayImage> createCustomMarker() async {
+    final customMarkerWidget = Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: const Color(0xFF37A3E0).withOpacity(0.2),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Image.asset('assets/images/icons/marker.png'),
+      ),
+    );
+
+    return await NOverlayImage.fromWidget(
+      widget: customMarkerWidget,
+      size: const Size(38, 38),
+      context: context,
+    );
+  }
+
+  Future<void> _searchLocation(String query) async {
+    final url = Uri.parse(
+        'https://openapi.naver.com/v1/search/local.json?query=$query&display=5&sort=comment');
+    final response = await http.get(
+      url,
+      headers: {
+        'X-Naver-Client-Id': 'HEPrP9HkJgIr4iDgmHD3',
+        'X-Naver-Client-Secret': 'cP0OTRXucq',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final result = json.decode(response.body);
+      log('Search result: $result');
+      // TODO: Handle the search result
+    } else {
+      log('Failed to search location: ${response.statusCode}');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _initializeSdk();
     _fetchItems();
+    _getCurrentLocation();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -60,9 +165,11 @@ class LocationScreenState extends State<LocationScreen> {
   Future<void> _fetchItems() async {
     if (!_hasMoreItems) return;
 
-    setState(() {
-      _isLoadingItems = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoadingItems = true;
+      });
+    }
 
     try {
       List<Map<String, dynamic>> newItems =
@@ -94,20 +201,21 @@ class LocationScreenState extends State<LocationScreen> {
 
   // 상태를 초기화하는 메서드
   void resetToInitial() {
-    setState(() {
-      _currentChildSize = 0.12;
-      _snapSizes = const [0.12, 0.5, 1.0];
-      _items.clear();
-      _isLoadingItems = false;
-      _hasMoreItems = true;
-      _currentPage = 1;
-      _selectedCategoryIndex = 0;
-      _draggableScrollableSheetKey =
-          UniqueKey(); // Add this line to reset the key
-    });
-    _initializeSdk().then((_) {
-      _fetchItems();
-    });
+    if (mounted) {
+      setState(() {
+        _currentChildSize = 0.12;
+        _snapSizes = const [0.12, 0.5, 1.0];
+        _items.clear();
+        _isLoadingItems = false;
+        _hasMoreItems = true;
+        _currentPage = 1;
+        _selectedCategoryIndex = 0;
+        _draggableScrollableSheetKey =
+            UniqueKey(); // Add this line to reset the key
+        _isLocationInitialized = false; // 위치 초기화
+      });
+    }
+    _getCurrentLocation();
   }
 
   void _updateChildSize(double size) {
@@ -162,7 +270,9 @@ class LocationScreenState extends State<LocationScreen> {
                   BlendMode.srcIn,
                 ),
               ),
-              onPressed: () {}, // Search button action
+              onPressed: () {
+                _searchLocation('강남');
+              }, // Search button action
             ),
           ),
         ],
@@ -176,22 +286,73 @@ class LocationScreenState extends State<LocationScreen> {
       ),
       body: Stack(
         children: [
-          if (_isMapSdkInitialized)
+          if (_isMapSdkInitialized && _isLocationInitialized)
             NaverMap(
-              options: const NaverMapViewOptions(
+              options: NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                  target: _initialPosition!,
+                  zoom: 15,
+                ),
                 indoorEnable: true,
                 locationButtonEnable: false,
                 consumeSymbolTapEvents: false,
               ),
               onMapReady: (controller) async {
-                mapControllerCompleter.complete(controller);
+                if (!mapControllerCompleter.isCompleted) {
+                  mapControllerCompleter.complete(controller);
+                }
                 log("onMapReady");
+
+                // 마커 추가
+                final customMarkerImage = await createCustomMarker();
+                final marker = NMarker(
+                  id: 'currentLocation',
+                  position: _initialPosition!,
+                  icon: customMarkerImage,
+                );
+                await controller.addOverlay(marker);
               },
             )
           else
             const Center(
               child: CircularProgressIndicator(),
             ),
+          Positioned(
+            top: 15,
+            right: 15,
+            child: GestureDetector(
+              onTap: () async {
+                await _getCurrentLocation();
+                setState(() {});
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      offset: const Offset(0, 0),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/images/icons/gps.svg',
+                    width: 21.6,
+                    height: 21.6,
+                    colorFilter: const ColorFilter.mode(
+                      Color(0xFF37A3E0),
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
               _updateChildSize(notification.extent);
@@ -312,7 +473,7 @@ class LocationScreenState extends State<LocationScreen> {
                                         ),
                                       ),
                                     ),
-                                    if (_currentChildSize != 0.12) // 추가된 부분
+                                    if (_currentChildSize != 0.12)
                                       Container(
                                         height: 1,
                                         color: const Color(

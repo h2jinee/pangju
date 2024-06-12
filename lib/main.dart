@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pangju/screens/home/home_screen.dart';
@@ -7,7 +8,9 @@ import 'package:pangju/screens/chat/chat_screen.dart';
 import 'package:pangju/screens/my_page/my_page_screen.dart';
 import 'package:pangju/controller/navigation_controller.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NaverMapSdk.instance.initialize(clientId: 'xhihwzgpec');
   runApp(const MyApp());
 }
 
