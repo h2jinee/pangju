@@ -270,6 +270,8 @@ class LocationScreenState extends State<LocationScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
+            height: 1.3,
+            letterSpacing: -0.2,
             color: Colors.black,
           ),
         ),
