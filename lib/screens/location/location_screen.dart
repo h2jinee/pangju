@@ -2,15 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:pangju/controller/navigation_controller.dart';
-import 'package:pangju/screens/service/api_service.dart';
+import 'package:pangju/service/api_service.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -77,26 +76,29 @@ class LocationScreenState extends State<LocationScreen> {
 
     if (mapControllerCompleter.isCompleted) {
       final controller = await mapControllerCompleter.future;
-      await controller.updateCamera(NCameraUpdate.withParams(
-        target: _initialPosition!,
-        zoom: 15,
-      ));
-
-      // 마커 추가
-      if (mounted) {
-        final customMarkerImage = await createCustomMarker();
-        final marker = NMarker(
-          id: 'currentLocation',
-          position: _initialPosition!,
-          icon: customMarkerImage,
+      log('Updating camera position');
+      try {
+        final cameraUpdate = NCameraUpdate.withParams(
+          target: _initialPosition!,
+          zoom: 15,
         );
-        await controller.clearOverlays();
-        await controller.addOverlay(marker);
+        await controller.updateCamera(cameraUpdate);
+        log('Camera position updated');
+
+        // 마커 추가
+        _addMarker(controller);
+      } catch (e) {
+        log('Error updating camera: $e');
       }
     }
   }
 
   // 커스텀 마커 이미지를 생성하는 함수
+  Future<void> _loadMarkerImage() async {
+    await precacheImage(
+        const AssetImage('assets/images/icons/marker.png'), context);
+  }
+
   Future<NOverlayImage> createCustomMarker() async {
     final customMarkerWidget = Container(
       width: 38,
@@ -115,6 +117,18 @@ class LocationScreenState extends State<LocationScreen> {
       size: const Size(38, 38),
       context: context,
     );
+  }
+
+  Future<void> _addMarker(NaverMapController controller) async {
+    await _loadMarkerImage(); // 이미지 로딩이 완료될 때까지 대기
+    final customMarkerImage = await createCustomMarker();
+    final marker = NMarker(
+      id: 'currentLocation',
+      position: _initialPosition!,
+      icon: customMarkerImage,
+    );
+    await controller.clearOverlays();
+    await controller.addOverlay(marker);
   }
 
   Future<void> _searchLocation(String query) async {
@@ -304,13 +318,9 @@ class LocationScreenState extends State<LocationScreen> {
                 log("onMapReady");
 
                 // 마커 추가
-                final customMarkerImage = await createCustomMarker();
-                final marker = NMarker(
-                  id: 'currentLocation',
-                  position: _initialPosition!,
-                  icon: customMarkerImage,
-                );
-                await controller.addOverlay(marker);
+                if (_isLocationInitialized) {
+                  await _addMarker(controller);
+                }
               },
             )
           else
@@ -513,15 +523,30 @@ class LocationScreenState extends State<LocationScreen> {
                       vertical: 10,
                     ),
                   ),
-                  child: const Text(
-                    '지도보기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      height: 1.3,
-                      letterSpacing: -0.2,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/icons/place_filled.svg',
+                        width: 12.5,
+                        height: 15.83,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white, // FFFFFF 색상으로 아이콘 색상 변경
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 5), // 아이콘과 텍스트 사이에 간격 추가
+                      const Text(
+                        '지도보기',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          height: 1.3,
+                          letterSpacing: -0.2,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

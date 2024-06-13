@@ -47,6 +47,10 @@
     <true/>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>In order to access your photo library</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Your location is used to show nearby places.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Your location is used to show nearby places.</string>
     <key>com.naver.maps.openapi.pangju</key>
     <string>pangju</string>
 </dict>

@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
-import 'package:pangju/screens/service/api_service.dart';
+import 'package:pangju/service/api_service.dart';
 import 'package:pangju/widgets/category_constants.dart';
 import 'package:pangju/widgets/category_box.dart';
 import 'package:pangju/widgets/category_button.dart';
