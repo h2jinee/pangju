@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String _username = 'user';
-  static const String _password = '12a8aea0-5352-4999-82d0-14b20f3c9885';
+  static const String _password = 'e624e7fb-ce72-455d-ab3c-ab874ed87895';
   static const String _baseUrl = 'http://10.0.2.2:8081/api/items';
 
   static Future<void> initializeNaverMapSdk() async {
@@ -33,18 +33,23 @@ class ApiService {
       int page, int size) async {
     String basicAuth =
         'Basic ${base64Encode(utf8.encode('$_username:$_password'))}';
+    final uri = Uri.parse('$_baseUrl?page=$page&size=$size');
 
-    final response = await http.get(
-      Uri.parse('$_baseUrl?page=$page&size=$size'),
-      headers: {
-        'Authorization': basicAuth,
-      },
-    );
+    log('Sending request to: $uri');
+    log('Authorization header: $basicAuth');
+
+    final client = HttpClient();
+    final request = await client.getUrl(uri);
+    request.headers.set(HttpHeaders.authorizationHeader, basicAuth);
+
+    final response = await request.close();
+    final responseBody = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(json.decode(response.body));
+      // log('Items loaded successfully: $responseBody');
+      return List<Map<String, dynamic>>.from(json.decode(responseBody));
     } else {
-      log('Failed to load items with status: ${response.statusCode}');
+      log('Failed to load items with status: ${response.statusCode}, body: $responseBody');
       throw Exception('Failed to load items');
     }
   }
