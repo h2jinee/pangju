@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:pangju/controller/navigation_controller.dart';
 import 'package:pangju/service/api_service.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
@@ -129,26 +127,6 @@ class LocationScreenState extends State<LocationScreen> {
     );
     await controller.clearOverlays();
     await controller.addOverlay(marker);
-  }
-
-  Future<void> _searchLocation(String query) async {
-    final url = Uri.parse(
-        'https://openapi.naver.com/v1/search/local.json?query=$query&display=5&sort=comment');
-    final response = await http.get(
-      url,
-      headers: {
-        'X-Naver-Client-Id': 'HEPrP9HkJgIr4iDgmHD3',
-        'X-Naver-Client-Secret': 'cP0OTRXucq',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      log('Search result: $result');
-      // TODO: Handle the search result
-    } else {
-      log('Failed to search location: ${response.statusCode}');
-    }
   }
 
   @override
@@ -286,9 +264,7 @@ class LocationScreenState extends State<LocationScreen> {
                   BlendMode.srcIn,
                 ),
               ),
-              onPressed: () {
-                _searchLocation('강남');
-              }, // Search button action
+              onPressed: () {}, // Search button action
             ),
           ),
         ],

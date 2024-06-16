@@ -48,6 +48,8 @@ class MainScreenState extends State<MainScreen> {
       Get.put(NavigationController());
   final GlobalKey<LocationScreenState> locationScreenKey =
       GlobalKey<LocationScreenState>();
+  final GlobalKey<MyPageScreenState> myPageScreenKey =
+      GlobalKey<MyPageScreenState>();
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +68,12 @@ class MainScreenState extends State<MainScreen> {
               currentIndex: navigationController.selectedIndex.value,
               onTap: (index) async {
                 // 이미 선택된 탭을 다시 누르면 초기화
-                if (navigationController.selectedIndex.value == index &&
-                    index == 1) {
-                  locationScreenKey.currentState?.resetToInitial();
+                if (navigationController.selectedIndex.value == index) {
+                  if (index == 1) {
+                    locationScreenKey.currentState?.resetToInitial();
+                  } else if (index == 3) {
+                    myPageScreenKey.currentState?.resetToInitial();
+                  }
                   setState(() {});
                 }
                 navigationController.changeIndex(index);
@@ -88,7 +93,7 @@ class MainScreenState extends State<MainScreen> {
             const HomeScreen(),
             LocationScreen(key: locationScreenKey),
             const ChatScreen(),
-            const MyPageScreen(),
+            MyPageScreen(key: myPageScreenKey),
           ],
         );
       }),
