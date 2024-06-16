@@ -13,10 +13,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomePageState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomePageState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final List<Map<String, dynamic>> _items = [];
@@ -107,6 +107,18 @@ class _HomePageState extends State<HomeScreen> {
     setState(() {
       _showNotificationBox = false;
     });
+  }
+
+  void resetToInitial() {
+    _items.clear();
+    _isLoading = false;
+    _currentPage = 1;
+    _selectedCategoryIndex = 0;
+    _showNotificationBox = true;
+    _hasMoreItems = true;
+    _fetchItems();
+    _scrollController.jumpTo(0);
+    setState(() {});
   }
 
   @override

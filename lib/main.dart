@@ -44,6 +44,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
+  final GlobalKey<HomeScreenState> homeScreenKey = GlobalKey<HomeScreenState>();
   final NavigationController navigationController =
       Get.put(NavigationController());
   final GlobalKey<LocationScreenState> locationScreenKey =
@@ -69,28 +70,30 @@ class MainScreenState extends State<MainScreen> {
               onTap: (index) async {
                 // 이미 선택된 탭을 다시 누르면 초기화
                 if (navigationController.selectedIndex.value == index) {
-                  if (index == 1) {
+                  if (index == 0) {
+                    homeScreenKey.currentState?.resetToInitial();
+                  } else if (index == 1) {
                     locationScreenKey.currentState?.resetToInitial();
                   } else if (index == 3) {
                     myPageScreenKey.currentState?.resetToInitial();
                   }
-                  setState(() {});
                 }
                 navigationController.changeIndex(index);
               },
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.white,
               items: bottomNavigationBarItems(
-                  context,
-                  navigationController.selectedIndex.value,
-                  navigationController.changeIndex),
+                context,
+                navigationController.selectedIndex.value,
+                navigationController.changeIndex,
+              ),
             ),
           )),
       body: Obx(() {
         return IndexedStack(
           index: navigationController.selectedIndex.value,
           children: [
-            const HomeScreen(),
+            HomeScreen(key: homeScreenKey),
             LocationScreen(key: locationScreenKey),
             const ChatScreen(),
             MyPageScreen(key: myPageScreenKey),

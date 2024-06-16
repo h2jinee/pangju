@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pangju/screens/home/home_screen.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 
 void showCancelDialog(BuildContext context) {
@@ -19,11 +18,7 @@ void showCancelDialog(BuildContext context) {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
-              );
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: const Text('예'),
           ),
