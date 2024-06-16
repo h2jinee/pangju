@@ -78,13 +78,36 @@ class MyPageScreenState extends State<MyPageScreen> {
                     _buildUserInfo(userData, controller),
                     GetBuilder<MyPageController>(
                       builder: (controller) {
-                        return IndexedStack(
-                          index: controller.selectedIndex,
+                        return Column(
                           children: [
-                            _buildTabContent(controller.posts), // 작성한 글
-                            _buildTabContent(controller.comments), // 작성한 댓글
-                            if (widget.showLikedPostsTab)
-                              _buildTabContent(controller.likedPosts), // 좋아한 글
+                            if (controller.selectedIndex == 2 &&
+                                widget.showLikedPostsTab)
+                              Container(
+                                height: 50,
+                                color: const Color(0xFFFBFBFB),
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: const Text(
+                                  '좋아한 글은 나만 볼 수 있어요.',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.3,
+                                    letterSpacing: -0.2,
+                                    color: Color(0xFF484848),
+                                  ),
+                                ),
+                              ),
+                            IndexedStack(
+                              index: controller.selectedIndex,
+                              children: [
+                                _buildTabContent(controller.posts), // 작성한 글
+                                _buildTabContent(controller.comments), // 작성한 댓글
+                                if (widget.showLikedPostsTab)
+                                  _buildTabContent(
+                                      controller.likedPosts), // 좋아한 글
+                              ],
+                            ),
                           ],
                         );
                       },
