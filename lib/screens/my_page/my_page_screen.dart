@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pangju/controller/my_page_controller.dart';
+import 'package:pangju/screens/my_page/settings.dart';
 import 'package:pangju/widgets/mypage_item_list_tile.dart';
 
 class MyPageScreen extends StatefulWidget {
@@ -49,14 +50,25 @@ class MyPageScreenState extends State<MyPageScreen> {
                     color: Color(0xFF262626),
                   ),
                 ),
-                SvgPicture.asset(
-                  'assets/images/icons/setting.svg',
-                  colorFilter: const ColorFilter.mode(
-                    Color(0xFF484848),
-                    BlendMode.srcIn,
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to SettingsPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsPage(),
+                      ),
+                    );
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/icons/setting.svg',
+                    colorFilter: const ColorFilter.mode(
+                      Color(0xFF484848),
+                      BlendMode.srcIn,
+                    ),
+                    width: 24,
+                    height: 24,
                   ),
-                  width: 24,
-                  height: 24,
                 ),
               ],
             ),
@@ -152,7 +164,7 @@ class MyPageScreenState extends State<MyPageScreen> {
                 child: ClipOval(
                   child: hasProfileImage
                       ? Image.network(userData['profileImage'],
-                          width: 54, height: 54)
+                          width: 72, height: 72)
                       : Image.asset('assets/images/default_profile.png',
                           width: 54, height: 54),
                 ),
