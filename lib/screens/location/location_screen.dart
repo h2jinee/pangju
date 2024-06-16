@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:pangju/controller/navigation_controller.dart';
 import 'package:pangju/service/api_service.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
+import 'package:pangju/controller/item_controller.dart'; // ItemController import
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -20,14 +21,12 @@ class LocationScreen extends StatefulWidget {
 class LocationScreenState extends State<LocationScreen> {
   final Completer<NaverMapController> mapControllerCompleter = Completer();
   final NavigationController navigationController = Get.find();
+  final ItemController itemController =
+      Get.put(ItemController()); // ItemController initialization
   bool _isMapSdkInitialized = false;
+  bool _isMapLoaded = false; // 맵 로드 상태를 관리할 변수
   double _currentChildSize = 0.12;
   List<double> _snapSizes = const [0.12, 0.5, 1.0];
-  final List<Map<String, dynamic>> _items = [];
-  bool _isLoadingItems = false;
-  bool _hasMoreItems = true;
-  int _currentPage = 1;
-  final int _itemsPerPage = 15;
   int _selectedCategoryIndex = 0;
   Key _draggableScrollableSheetKey = UniqueKey();
   final ScrollController _scrollController = ScrollController();
@@ -133,16 +132,16 @@ class LocationScreenState extends State<LocationScreen> {
   void initState() {
     super.initState();
     _initializeSdk();
-    _fetchItems();
+    itemController.fetchItems();
     _getCurrentLocation();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
-          !_isLoadingItems &&
-          _hasMoreItems &&
+          !itemController.isLoading.value &&
+          itemController.hasMoreItems.value &&
           _currentChildSize == 1.0) {
-        _fetchItems();
+        itemController.fetchItems();
       }
     });
   }
@@ -154,60 +153,20 @@ class LocationScreenState extends State<LocationScreen> {
     });
   }
 
-  Future<void> _fetchItems() async {
-    if (!_hasMoreItems) return;
-
-    if (mounted) {
-      setState(() {
-        _isLoadingItems = true;
-      });
-    }
-
-    try {
-      List<Map<String, dynamic>> newItems =
-          await ApiService.fetchItems(_currentPage, _itemsPerPage);
-      if (newItems.isEmpty) {
-        if (mounted) {
-          setState(() {
-            _hasMoreItems = false;
-            _isLoadingItems = false;
-          });
-        }
-        return;
-      }
-      if (mounted) {
-        setState(() {
-          _items.addAll(newItems);
-          _isLoadingItems = false;
-          _currentPage++;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingItems = false;
-        });
-      }
-    }
-  }
-
   // 상태를 초기화하는 메서드
   void resetToInitial() {
     if (mounted) {
       setState(() {
         _currentChildSize = 0.12;
         _snapSizes = const [0.12, 0.5, 1.0];
-        _items.clear();
-        _isLoadingItems = false;
-        _hasMoreItems = true;
-        _currentPage = 1;
-        _selectedCategoryIndex = 0;
         _draggableScrollableSheetKey =
             UniqueKey(); // Add this line to reset the key
         _isLocationInitialized = false; // 위치 초기화
+        _isMapLoaded = false; // 맵 로드 상태 초기화
       });
     }
     _getCurrentLocation();
+    itemController.resetItems(); // Reset items
   }
 
   void _updateChildSize(double size) {
@@ -219,11 +178,8 @@ class LocationScreenState extends State<LocationScreen> {
   void _onCategoryTap(int index) {
     setState(() {
       _selectedCategoryIndex = index;
-      _items.clear();
-      _currentPage = 1;
-      _hasMoreItems = true;
     });
-    _fetchItems();
+    itemController.resetItems(); // Reset items when category changes
   }
 
   void _onMapButtonPressed() {
@@ -240,34 +196,35 @@ class LocationScreenState extends State<LocationScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text(
-          '내근처',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            height: 1.3,
-            letterSpacing: -0.2,
-            color: Colors.black,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/images/icons/search.svg',
-                colorFilter: const ColorFilter.mode(
-                  Color(0xFF000000),
-                  BlendMode.srcIn,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '내 근처',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF262626),
                 ),
               ),
-              onPressed: () {}, // Search button action
-            ),
+              SvgPicture.asset(
+                'assets/images/icons/search.svg',
+                colorFilter: const ColorFilter.mode(
+                  Color(0xFF484848),
+                  BlendMode.srcIn,
+                ),
+                width: 24,
+                height: 24,
+              ),
+            ],
           ),
-        ],
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
@@ -299,192 +256,162 @@ class LocationScreenState extends State<LocationScreen> {
                 if (_isLocationInitialized) {
                   await _addMarker(controller);
                 }
+                setState(() {
+                  _isMapLoaded = true; // 맵 로드 완료 상태 설정
+                });
               },
             )
           else
             const Center(
               child: CircularProgressIndicator(),
             ),
-          Positioned(
-            top: 15,
-            right: 15,
-            child: GestureDetector(
-              onTap: () async {
-                await _getCurrentLocation();
-                setState(() {});
+          if (_isMapLoaded)
+            NotificationListener<DraggableScrollableNotification>(
+              onNotification: (notification) {
+                _updateChildSize(notification.extent);
+                return true;
               },
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      offset: const Offset(0, 0),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/images/icons/gps.svg',
-                    width: 21.6,
-                    height: 21.6,
-                    colorFilter: const ColorFilter.mode(
-                      Color(0xFF37A3E0),
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              _updateChildSize(notification.extent);
-              return true;
-            },
-            child: DraggableScrollableSheet(
-              key: _draggableScrollableSheetKey,
-              initialChildSize: _currentChildSize,
-              minChildSize: 0.12,
-              maxChildSize: 1.0,
-              snap: true,
-              snapSizes: _snapSizes,
-              builder:
-                  (BuildContext context, ScrollController scrollController) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: _currentChildSize == 1.0
-                        ? BorderRadius.zero
-                        : const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                    boxShadow: _currentChildSize == 1.0
-                        ? []
-                        : [
-                            const BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10.0,
-                              spreadRadius: 0.5,
+              child: DraggableScrollableSheet(
+                key: _draggableScrollableSheetKey,
+                initialChildSize: _currentChildSize,
+                minChildSize: 0.12,
+                maxChildSize: 1.0,
+                snap: true,
+                snapSizes: _snapSizes,
+                builder:
+                    (BuildContext context, ScrollController scrollController) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: _currentChildSize == 1.0
+                          ? BorderRadius.zero
+                          : const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
                             ),
-                          ],
-                  ),
-                  child: _isLoadingItems
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : NotificationListener<ScrollNotification>(
-                          onNotification:
-                              (ScrollNotification scrollNotification) {
-                            if (scrollNotification.metrics.pixels ==
-                                    scrollNotification
-                                        .metrics.maxScrollExtent &&
-                                !_isLoadingItems &&
-                                _hasMoreItems &&
-                                _currentChildSize == 1.0) {
-                              _fetchItems();
-                            }
-                            return true;
-                          },
-                          child: ListView.builder(
-                            controller: scrollController,
-                            itemCount: _items.length + 1,
-                            itemBuilder: (BuildContext context, int index) {
-                              if (index == 0) {
-                                return Column(
-                                  children: [
-                                    Padding(
-                                      padding: _currentChildSize == 0.12
-                                          ? const EdgeInsets.only(
-                                              top: 20,
-                                              left: 15,
-                                              bottom: 10,
-                                            )
-                                          : const EdgeInsets.symmetric(
-                                              vertical: 20,
-                                              horizontal: 15,
-                                            ),
-                                      child: SizedBox(
-                                        height: 37,
-                                        child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: _categories.length,
-                                          itemBuilder: (context, index) {
-                                            bool isSelected =
-                                                _selectedCategoryIndex == index;
+                      boxShadow: _currentChildSize == 1.0
+                          ? []
+                          : [
+                              const BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10.0,
+                                spreadRadius: 0.5,
+                              ),
+                            ],
+                    ),
+                    child: Obx(
+                      () => itemController.isLoading.value
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : NotificationListener<ScrollNotification>(
+                              onNotification:
+                                  (ScrollNotification scrollNotification) {
+                                if (scrollNotification.metrics.pixels ==
+                                        scrollNotification
+                                            .metrics.maxScrollExtent &&
+                                    !itemController.isLoading.value &&
+                                    itemController.hasMoreItems.value &&
+                                    _currentChildSize == 1.0) {
+                                  itemController.fetchItems();
+                                }
+                                return true;
+                              },
+                              child: ListView.builder(
+                                controller: scrollController,
+                                itemCount: itemController.items.length + 1,
+                                itemBuilder: (BuildContext context, int index) {
+                                  if (index == 0) {
+                                    return Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 20,
+                                            left: 15,
+                                            bottom: 10,
+                                          ),
+                                          child: SizedBox(
+                                            height: 37,
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: _categories.length,
+                                              itemBuilder: (context, index) {
+                                                bool isSelected =
+                                                    _selectedCategoryIndex ==
+                                                        index;
 
-                                            return GestureDetector(
-                                              onTap: () =>
-                                                  _onCategoryTap(index),
-                                              child: Container(
-                                                margin:
-                                                    const EdgeInsets.symmetric(
+                                                return GestureDetector(
+                                                  onTap: () =>
+                                                      _onCategoryTap(index),
+                                                  child: Container(
+                                                    margin: const EdgeInsets
+                                                        .symmetric(
                                                         horizontal: 3),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                         horizontal: 14,
                                                         vertical: 8),
-                                                decoration: BoxDecoration(
-                                                  color: isSelected
-                                                      ? const Color(0xFF37A3E0)
-                                                      : Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                  border: Border.all(
-                                                      color: Colors.black12),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    _categories[index],
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      height: 1.3,
-                                                      letterSpacing: -0.2,
-                                                      fontWeight:
-                                                          FontWeight.normal,
+                                                    decoration: BoxDecoration(
                                                       color: isSelected
-                                                          ? Colors.white
-                                                          : const Color(
-                                                              0xFF484848),
+                                                          ? const Color(
+                                                              0xFF37A3E0)
+                                                          : Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                      border: Border.all(
+                                                          color:
+                                                              Colors.black12),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        _categories[index],
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          height: 1.3,
+                                                          letterSpacing: -0.2,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color: isSelected
+                                                              ? Colors.white
+                                                              : const Color(
+                                                                  0xFF484848),
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    if (_currentChildSize != 0.12)
-                                      Container(
-                                        height: 1,
-                                        color: const Color(
-                                            0xFFE5E5E5), // Stroke color
-                                      ),
-                                  ],
-                                );
-                              }
+                                        if (_currentChildSize != 0.12)
+                                          Container(
+                                            height: 1,
+                                            color: const Color(
+                                                0xFFE5E5E5), // Stroke color
+                                          ),
+                                      ],
+                                    );
+                                  }
 
-                              if (_currentChildSize > 0.12) {
-                                final item = _items[index - 1];
-                                return ItemListTile(item: item);
-                              }
+                                  if (_currentChildSize > 0.12) {
+                                    final item =
+                                        itemController.items[index - 1];
+                                    return ItemListTile(item: item);
+                                  }
 
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                );
-              },
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          if (_currentChildSize == 1.0)
+          if (_currentChildSize == 1.0 && _isMapLoaded)
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
