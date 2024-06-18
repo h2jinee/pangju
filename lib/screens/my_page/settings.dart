@@ -333,13 +333,18 @@ class _SettingsPageState extends State<SettingsPage> {
               color: const Color(0xFFF6F6F6),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildGenderBox('남자'),
-                _buildGenderBox('여자'),
-                _buildGenderBox('기타'),
-              ],
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                double boxWidth = (constraints.maxWidth - 50) / 3;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildGenderBox('남자', boxWidth),
+                    _buildGenderBox('여자', boxWidth),
+                    _buildGenderBox('기타', boxWidth),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -347,7 +352,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildGenderBox(String title) {
+  Widget _buildGenderBox(String title, double width) {
     bool isSelected = userData != null && userData!['gender'] == title;
     return GestureDetector(
       onTap: () {
@@ -358,15 +363,14 @@ class _SettingsPageState extends State<SettingsPage> {
         });
       },
       child: Container(
-        width: 110,
+        width: width,
         height: 36,
-        decoration: isSelected
-            ? BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE5E5E5)),
-              )
-            : null,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFFFFF) : const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(8),
+          border:
+              isSelected ? Border.all(color: const Color(0xFFE5E5E5)) : null,
+        ),
         alignment: Alignment.center,
         child: Text(
           title,
