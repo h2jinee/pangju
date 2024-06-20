@@ -2,11 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pangju/screens/home/notification_screen.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 import 'package:pangju/service/api_service.dart';
-import 'package:pangju/widgets/category_constants.dart';
 import 'package:pangju/widgets/category_box.dart';
 import 'package:pangju/widgets/category_button.dart';
+import 'package:pangju/widgets/category_constants.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -185,10 +186,20 @@ class HomeScreenState extends State<HomeScreen> {
                         Positioned(
                           top: 0,
                           right: 20,
-                          child: SvgPicture.asset(
-                            'assets/images/icons/bell.svg',
-                            width: 24,
-                            height: 24,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationScreen()),
+                              );
+                            },
+                            child: SvgPicture.asset(
+                              'assets/images/icons/bell.svg',
+                              width: 24,
+                              height: 24,
+                            ),
                           ),
                         ),
                       ],
