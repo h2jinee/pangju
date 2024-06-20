@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:pangju/controller/navigation_controller.dart';
+import 'package:pangju/screens/home/item_detail_screen.dart';
 import 'package:pangju/service/api_service.dart';
 import 'package:pangju/widgets/item_list_tile.dart';
 import 'package:pangju/controller/item_controller.dart'; // ItemController import
@@ -399,7 +400,19 @@ class LocationScreenState extends State<LocationScreen> {
                                   if (_currentChildSize > 0.12) {
                                     final item =
                                         itemController.items[index - 1];
-                                    return ItemListTile(item: item);
+                                    return ItemListTile(
+                                      item: item,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ItemDetailScreen(
+                                                    id: item['id']),
+                                          ),
+                                        );
+                                      },
+                                    );
                                   }
 
                                   return const SizedBox.shrink();

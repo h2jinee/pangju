@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pangju/screens/home/item_detail_screen.dart';
 import 'package:pangju/screens/home/notification_screen.dart';
 import 'package:pangju/screens/home/write_first_screen.dart';
 import 'package:pangju/service/api_service.dart';
@@ -515,7 +516,18 @@ class HomeScreenState extends State<HomeScreen> {
                       itemCount: _items.length,
                       itemBuilder: (context, index) {
                         final item = _items[index];
-                        return ItemListTile(item: item);
+                        return ItemListTile(
+                          item: item,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ItemDetailScreen(id: item['id']),
+                              ),
+                            );
+                          },
+                        );
                       },
                     ),
                   ),

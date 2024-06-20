@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String _username = 'user';
-  static const String _password = '19e26b57-f1d4-4ba8-9017-422285a17729';
+  static const String _password = '7e33af58-91b9-4994-a394-f94117a9bd1c';
   static const String _baseUrl = 'http://10.0.2.2:8081/api/items';
 
   static Future<void> initializeNaverMapSdk() async {
@@ -46,6 +46,25 @@ class ApiService {
     } else {
       log('Failed to load items with status: ${response.statusCode}');
       throw Exception('Failed to load items');
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchItemById(int id) async {
+    String basicAuth =
+        'Basic ${base64Encode(utf8.encode('$_username:$_password'))}';
+
+    final response = await http.get(
+      Uri.parse('$_baseUrl/$id'),
+      headers: {
+        'Authorization': basicAuth,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      log('Failed to load item with status: ${response.statusCode}');
+      throw Exception('Failed to load item');
     }
   }
 }
