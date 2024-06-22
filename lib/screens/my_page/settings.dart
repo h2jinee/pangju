@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -33,79 +34,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (userData == null) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          scrolledUnderElevation: 0,
-          centerTitle: true,
-          title: const Text(
-            '계정 설정',
-            style: TextStyle(
-              color: Color(0xFF262626),
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              height: 1.3,
-              letterSpacing: -0.2,
-            ),
-          ),
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: IconButton(
-              icon: SizedBox(
-                width: 24,
-                height: 24,
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/images/icons/left_arrow.svg',
-                    colorFilter: const ColorFilter.mode(
-                      Color(0xFF484848),
-                      BlendMode.srcIn,
-                    ),
-                    height: 19.74,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context); // 뒤로 가기 동작
-              },
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: TextButton(
-                onPressed: () {
-                  // 완료 버튼 클릭 시 동작 추가
-                },
-                child: const Text(
-                  '완료',
-                  style: TextStyle(
-                    color: Color(0xFF37A3E0),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-          elevation: 0,
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1.0),
-            child: Container(
-              color: const Color(0xFFE5E5E5),
-              height: 1.0,
-              width: double.infinity,
-            ),
-          ),
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -153,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(right: 10),
               child: TextButton(
                 onPressed: () {
-                  // 완료 버튼 클릭 시 동작 추가
+                  Get.back();
                 },
                 child: const Text(
                   '완료',
