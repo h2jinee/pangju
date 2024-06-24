@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String _username = 'user';
-  static const String _password = '7e33af58-91b9-4994-a394-f94117a9bd1c';
+  static const String _password = '5dbdd8ce-35b5-459a-9cb8-3a3371b7e2b5';
   static const String _baseUrl = 'http://10.0.2.2:8081/api/items';
 
   static Future<void> initializeNaverMapSdk() async {
